@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+﻿import { Link, NavLink } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 
 const base =
@@ -44,6 +44,12 @@ export const Navbar = () => {
             className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
           >
             Recomendações
+          </NavLink>
+          <NavLink
+            to="/contato"
+            className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
+          >
+            Contato
           </NavLink>
           <button
             onClick={toggleTheme}
