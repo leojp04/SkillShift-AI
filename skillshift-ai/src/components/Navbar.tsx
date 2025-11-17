@@ -46,6 +46,12 @@ export const Navbar = () => {
             Recomendações
           </NavLink>
           <NavLink
+            to="/faq"
+            className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
+          >
+            FAQ
+          </NavLink>
+          <NavLink
             to="/contato"
             className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
           >
