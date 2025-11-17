@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { RecomendacaoUI } from "../types/recomendacao";
+import type { RecomendacaoUI } from "../types/recomendacao";
 
 const Recomendacoes = () => {
   const [items, setItems] = useState<RecomendacaoUI[]>([]);
@@ -84,3 +84,4 @@ const Recomendacoes = () => {
 };
 
 export default Recomendacoes;
+
