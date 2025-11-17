@@ -1,25 +1,21 @@
-import { useEffect, useState } from "react";
-
-type Recomendacao = {
-  id: string | number;
-  titulo: string;
-  descricao?: string;
-};
+﻿import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import type { RecomendacaoUI } from "../types/recomendacao";
 
 const Recomendacoes = () => {
-  const [items, setItems] = useState<Recomendacao[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<RecomendacaoUI[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
     const base = import.meta.env.VITE_API_URL;
 
-    // se não tiver API, usa mock pra não quebrar
     if (!base) {
-      setItems([
-        { id: 1, titulo: "Curso: React Básico", descricao: "Fundamentos de componentes e hooks." },
+      const mock: RecomendacaoUI[] = [
+        { id: 1, titulo: "Curso: React Básico", descricao: "Fundamentos de componentes e hooks.", destaque: true },
         { id: 2, titulo: "Curso: TypeScript para Frontend", descricao: "Tipos, interfaces e boas práticas." },
-      ]);
+      ];
+      setItems(mock);
       setLoading(false);
       return;
     }
@@ -28,10 +24,10 @@ const Recomendacoes = () => {
       try {
         const res = await fetch(`${base}/recomendacoes`);
         if (!res.ok) throw new Error("Erro ao buscar dados");
-        const data = await res.json();
+        const data: RecomendacaoUI[] = await res.json();
         setItems(data);
       } catch (e: any) {
-        setErro(e.message);
+        setErro(e.message ?? "Erro desconhecido");
       } finally {
         setLoading(false);
       }
@@ -54,7 +50,15 @@ const Recomendacoes = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((it) => (
-          <div key={it.id} className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
+          <Link
+            key={it.id}
+            to={`/recomendacoes/${it.id}`}
+            className={`bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm block border ${
+              it.destaque
+                ? "border-indigo-500"
+                : "border-transparent hover:border-indigo-500"
+            }`}
+          >
             <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
               {it.titulo}
             </h2>
@@ -63,7 +67,10 @@ const Recomendacoes = () => {
                 {it.descricao}
               </p>
             )}
-          </div>
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              Ver detalhes →
+            </p>
+          </Link>
         ))}
       </div>
 
@@ -77,3 +84,4 @@ const Recomendacoes = () => {
 };
 
 export default Recomendacoes;
+
