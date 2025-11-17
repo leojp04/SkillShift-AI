@@ -6,6 +6,7 @@ import Integrantes from "./pages/Integrantes";
 import Recomendacoes from "./pages/Recomendacoes";
 import Contato from "./pages/Contato";
 import DetalheRecomendacao from "./pages/DetalheRecomendacao";
+import FAQ from "./pages/FAQ";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/integrantes" element={<Integrantes />} />
         <Route path="/recomendacoes" element={<Recomendacoes />} />
         <Route path="/recomendacoes/:id" element={<DetalheRecomendacao />} />
+        <Route path="/faq" element={<FAQ />} />
         <Route path="/contato" element={<Contato />} />
       </Routes>
     </div>
