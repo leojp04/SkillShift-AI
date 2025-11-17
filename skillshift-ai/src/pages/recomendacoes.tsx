@@ -1,74 +1,207 @@
-import { useEffect, useState } from "react";
-
-type Recomendacao = {
-  id: string | number;
-  titulo: string;
-  descricao?: string;
-};
+﻿import { useEffect, useState, FormEvent } from "react";
+import { Link } from "react-router-dom";
+import { RecomendacaoUI } from "../types/recomendacao";
 
 const Recomendacoes = () => {
-  const [items, setItems] = useState<Recomendacao[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<RecomendacaoUI[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
-    const base = import.meta.env.VITE_API_URL;
+  const [novoTitulo, setNovoTitulo] = useState("");
+  const [novaDescricao, setNovaDescricao] = useState("");
 
-    // se não tiver API, usa mock pra não quebrar
+  const base = import.meta.env.VITE_API_URL;
+
+  const carregar = async () => {
     if (!base) {
-      setItems([
-        { id: 1, titulo: "Curso: React Básico", descricao: "Fundamentos de componentes e hooks." },
+      const mock: RecomendacaoUI[] = [
+        { id: 1, titulo: "Curso: React Básico", descricao: "Fundamentos de componentes e hooks.", destaque: true },
         { id: 2, titulo: "Curso: TypeScript para Frontend", descricao: "Tipos, interfaces e boas práticas." },
-      ]);
+      ];
+      setItems(mock);
       setLoading(false);
       return;
     }
 
-    const load = async () => {
-      try {
-        const res = await fetch(`${base}/recomendacoes`);
-        if (!res.ok) throw new Error("Erro ao buscar dados");
-        const data = await res.json();
-        setItems(data);
-      } catch (e: any) {
-        setErro(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      const res = await fetch(`${base}/recomendacoes`);
+      if (!res.ok) throw new Error("Erro ao buscar dados");
+      const data: RecomendacaoUI[] = await res.json();
+      setItems(data);
+      setErro(null);
+    } catch (e: any) {
+      setErro(e.message ?? "Erro desconhecido");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    load();
+  useEffect(() => {
+    carregar();
   }, []);
 
+  const handleCriar = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!novoTitulo.trim()) return;
+
+    // Se não tiver API, só adiciona local
+    if (!base) {
+      const novoItem: RecomendacaoUI = {
+        id: Date.now(),
+        titulo: novoTitulo,
+        descricao: novaDescricao,
+      };
+      setItems((prev) => [...prev, novoItem]);
+      setNovoTitulo("");
+      setNovaDescricao("");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${base}/recomendacoes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: novoTitulo,
+          descricao: novaDescricao,
+        }),
+      });
+      if (!res.ok) throw new Error("Erro ao criar recomendação");
+      await carregar();
+      setNovoTitulo("");
+      setNovaDescricao("");
+    } catch (e: any) {
+      setErro(e.message ?? "Erro ao criar recomendação");
+    }
+  };
+
+  const handleExcluir = async (id: string | number) => {
+    if (!base) {
+      setItems((prev) => prev.filter((it) => it.id !== id));
+      return;
+    }
+
+    try {
+      const res = await fetch(`${base}/recomendacoes/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Erro ao excluir recomendação");
+      await carregar();
+    } catch (e: any) {
+      setErro(e.message ?? "Erro ao excluir recomendação");
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-        Recomendações
-      </h1>
-      <p className="text-slate-700 dark:text-slate-200 mb-4">
-        Recomendações de cursos e trilhas com base no perfil do usuário.
-      </p>
+    <div className="max-w-6xl mx-auto py-10 px-4 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          Recomendações
+        </h1>
+        <p className="text-slate-700 dark:text-slate-200 mb-2">
+          Recomendações de cursos e trilhas com base no perfil do usuário.
+        </p>
+        {base ? (
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">
+            Consumindo API remota em: {base}
+          </p>
+        ) : (
+          <p className="text-xs text-amber-600 dark:text-amber-400">
+            API remota não configurada (.env). Usando dados mock.
+          </p>
+        )}
+      </div>
+
+      {erro && (
+        <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-3 py-2 rounded">
+          Erro: {erro}
+        </p>
+      )}
+
+      <form
+        onSubmit={handleCriar}
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3"
+      >
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100">
+          Adicionar nova recomendação
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+              Título
+            </label>
+            <input
+              value={novoTitulo}
+              onChange={(e) => setNovoTitulo(e.target.value)}
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
+              placeholder="Ex: Trilha Front-end Júnior"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+              Descrição
+            </label>
+            <input
+              value={novaDescricao}
+              onChange={(e) => setNovaDescricao(e.target.value)}
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
+              placeholder="Ex: HTML, CSS, JS, React..."
+            />
+          </div>
+        </div>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700"
+        >
+          Salvar recomendação
+        </button>
+      </form>
 
       {loading && <p className="text-slate-500 dark:text-slate-400">Carregando...</p>}
-      {erro && <p className="text-red-500">Erro: {erro}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((it) => (
-          <div key={it.id} className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm">
-            <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
-              {it.titulo}
-            </h2>
-            {it.descricao && (
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                {it.descricao}
-              </p>
-            )}
+          <div
+            key={it.id}
+            className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-2"
+          >
+            <div className="flex-1">
+              <Link
+                to={`/recomendacoes/${it.id}`}
+                className="block hover:underline"
+              >
+                <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                  {it.titulo}
+                </h2>
+              </Link>
+              {it.descricao && (
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  {it.descricao}
+                </p>
+              )}
+            </div>
+            <div className="flex justify-between items-center mt-2">
+              <Link
+                to={`/recomendacoes/${it.id}`}
+                className="text-xs text-indigo-500 hover:underline"
+              >
+                Ver detalhes →
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleExcluir(it.id)}
+                className="text-xs text-red-500 hover:underline"
+              >
+                Excluir
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
       {!loading && items.length === 0 && (
-        <p className="text-slate-500 dark:text-slate-400 mt-4">
+        <p className="text-slate-500 dark:text-slate-400">
           Nenhuma recomendação disponível.
         </p>
       )}
