@@ -1,15 +1,15 @@
 const Sobre = () => {
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4">
+    <div className="max-w-5xl mx-auto py-10 px-6">
       <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
         Sobre o Projeto
       </h1>
-      <p className="text-slate-700 dark:text-slate-200 mb-6">
+      <p className="text-slate-700 dark:text-slate-200 mb-6 max-w-3xl">
         O SkillShift AI é um projeto acadêmico que simula uma plataforma de requalificação profissional usando
         React, TypeScript e integração com API. Ele também demonstra o uso correto de GitFlow e versionamento no GitHub.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
           <h2 className="font-semibold mb-2 text-slate-900 dark:text-slate-100">Problema</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">

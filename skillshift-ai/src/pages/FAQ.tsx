@@ -24,7 +24,7 @@ const faqs = [
 const FAQ = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <div className="max-w-6xl mx-auto py-10 px-4 space-y-6">
+      <div className="max-w-6xl mx-auto py-10 px-6 space-y-6">
         <header className="space-y-3">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
             FAQ - Perguntas Frequentes
@@ -35,7 +35,7 @@ const FAQ = () => {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {faqs.map((faq) => (
             <div
               key={faq.pergunta}

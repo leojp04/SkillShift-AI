@@ -1,10 +1,10 @@
 ﻿const Contato = () => {
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4">
+    <div className="max-w-4xl mx-auto py-10 px-6">
       <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
         Contato
       </h1>
-      <p className="text-slate-700 dark:text-slate-200 mb-6">
+      <p className="text-slate-700 dark:text-slate-200 mb-6 max-w-3xl">
         Entre em contato com a equipe do projeto para dúvidas, sugestões ou parcerias.
       </p>
 
