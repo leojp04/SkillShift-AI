@@ -12,7 +12,11 @@ export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <nav className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+    <nav
+      role="navigation"
+      aria-label="Navegação principal"
+      className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"
+    >
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 gap-4">
         <Link
           to="/"
@@ -59,6 +63,8 @@ export const Navbar = () => {
           </NavLink>
           <button
             onClick={toggleTheme}
+            aria-label="Alternar entre tema claro e escuro"
+            aria-pressed={theme === "dark"}
             className="ml-2 px-3 py-2 rounded-md text-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
           >
             {theme === "light" ? "🌙" : "☀️"}
