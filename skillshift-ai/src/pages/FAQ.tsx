@@ -23,10 +23,16 @@ const faqs = [
 
 const FAQ = () => {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <section
+      className="min-h-screen bg-slate-50 dark:bg-slate-950"
+      aria-labelledby="faq-title"
+    >
       <div className="max-w-6xl mx-auto py-10 px-6 space-y-6">
         <header className="space-y-3">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1
+            id="faq-title"
+            className="text-3xl font-bold text-slate-900 dark:text-slate-100"
+          >
             FAQ - Perguntas Frequentes
           </h1>
           <p className="text-slate-700 dark:text-slate-200 max-w-3xl">
@@ -41,9 +47,9 @@ const FAQ = () => {
               key={faq.pergunta}
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm"
             >
-              <p className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
+              <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">
                 {faq.pergunta}
-              </p>
+              </h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                 {faq.resposta}
               </p>
@@ -51,7 +57,7 @@ const FAQ = () => {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
