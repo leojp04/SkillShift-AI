@@ -12,6 +12,7 @@ const Recomendacoes = () => {
   const [novaDescricao, setNovaDescricao] = useState("");
 
   const base = import.meta.env.VITE_API_URL;
+  const skeletons = [1, 2, 3, 4];
 
   const carregar = async () => {
     if (!base) {
@@ -77,7 +78,7 @@ const Recomendacoes = () => {
     }
   };
 
-const handleExcluir = async (id: string | number) => {
+  const handleExcluir = async (id: string | number) => {
     if (!base) {
       setItems((prev) => prev.filter((it) => it.id !== id));
       return;
@@ -105,19 +106,21 @@ const handleExcluir = async (id: string | number) => {
         </p>
         {base ? (
           <p className="text-xs text-emerald-600 dark:text-emerald-400">
-            Consumindo API remota em: {base}
+            Consumindo API remota
           </p>
         ) : (
           <p className="text-xs text-amber-600 dark:text-amber-400">
-            API remota não configurada (.env). Usando dados mock.
+            Usando dados mock (API não configurada)
           </p>
         )}
       </div>
 
       {erro && (
-        <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-3 py-2 rounded">
-          Erro: {erro}
-        </p>
+        <div className="text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 px-3 py-3 rounded-lg space-y-1">
+          <p className="font-semibold">Erro ao carregar recomendações</p>
+          <p>Mensagem: {erro}</p>
+          <p className="text-xs">Tente novamente mais tarde.</p>
+        </div>
       )}
 
       <form
@@ -159,7 +162,19 @@ const handleExcluir = async (id: string | number) => {
         </button>
       </form>
 
-      {loading && <p className="text-slate-500 dark:text-slate-400">Carregando...</p>}
+      {loading && (
+        <div className="space-y-3">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Carregando...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {skeletons.map((item) => (
+              <div
+                key={item}
+                className="h-24 md:h-28 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {items.map((it) => (
