@@ -11,6 +11,7 @@ const Recomendacoes = () => {
   const [novoTitulo, setNovoTitulo] = useState("");
   const [novaDescricao, setNovaDescricao] = useState("");
   const [filtroTexto, setFiltroTexto] = useState("");
+  const [ordem, setOrdem] = useState<"titulo-asc" | "titulo-desc" | "score-desc">("titulo-asc");
 
   const base = import.meta.env.VITE_API_URL;
   const skeletons = [1, 2, 3, 4];
@@ -104,6 +105,23 @@ const Recomendacoes = () => {
     return titulo.includes(termo) || descricao.includes(termo);
   });
 
+  const exibidas = [...filtradas].sort((a, b) => {
+    if (ordem === "score-desc") {
+      const scoreA = typeof a.score === "number" ? a.score : 0;
+      const scoreB = typeof b.score === "number" ? b.score : 0;
+      return scoreB - scoreA;
+    }
+
+    const tituloA = (a.titulo ?? "").toLowerCase();
+    const tituloB = (b.titulo ?? "").toLowerCase();
+
+    if (ordem === "titulo-desc") {
+      return tituloB.localeCompare(tituloA);
+    }
+
+    return tituloA.localeCompare(tituloB);
+  });
+
   return (
     <div className="max-w-6xl mx-auto py-10 px-6 space-y-6">
       <div>
@@ -171,21 +189,41 @@ const Recomendacoes = () => {
         </button>
       </form>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="filtro-texto"
-          className="block text-sm font-medium text-slate-700 dark:text-slate-200"
-        >
-          Buscar recomendações
-        </label>
-        <input
-          id="filtro-texto"
-          type="text"
-          value={filtroTexto}
-          onChange={(e) => setFiltroTexto(e.target.value)}
-          placeholder="Busque por título ou descrição"
-          className="w-full max-w-md px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-        />
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+        <div className="space-y-2">
+          <label
+            htmlFor="filtro-texto"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            Buscar recomendações
+          </label>
+          <input
+            id="filtro-texto"
+            type="text"
+            value={filtroTexto}
+            onChange={(e) => setFiltroTexto(e.target.value)}
+            placeholder="Busque por título ou descrição"
+            className="w-full max-w-md px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
+          />
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="ordenacao"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            Ordenar por
+          </label>
+          <select
+            id="ordenacao"
+            value={ordem}
+            onChange={(e) => setOrdem(e.target.value as typeof ordem)}
+            className="text-sm px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 w-full md:w-auto ml-0 md:ml-3 mt-0"
+          >
+            <option value="titulo-asc">Título (A–Z)</option>
+            <option value="titulo-desc">Título (Z–A)</option>
+            <option value="score-desc">Maior score primeiro</option>
+          </select>
+        </div>
       </div>
 
       {loading && (
@@ -203,7 +241,7 @@ const Recomendacoes = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filtradas.map((it) => (
+        {exibidas.map((it) => (
           <div
             key={it.id}
             className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-2"
@@ -242,7 +280,7 @@ const Recomendacoes = () => {
         ))}
       </div>
 
-      {!loading && filtradas.length === 0 && (
+      {!loading && exibidas.length === 0 && (
         <p className="text-slate-500 dark:text-slate-400">
           Nenhuma recomendação disponível.
         </p>
