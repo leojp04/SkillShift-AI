@@ -50,6 +50,12 @@ export const Navbar = () => {
             Recomendações
           </NavLink>
           <NavLink
+            to="/trilhas"
+            className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
+          >
+            Trilhas
+          </NavLink>
+          <NavLink
             to="/faq"
             className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
           >
