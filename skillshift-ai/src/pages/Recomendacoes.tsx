@@ -15,9 +15,35 @@ const Recomendacoes = () => {
   const [idEmEdicao, setIdEmEdicao] = useState<string | number | null>(null);
   const [editarTitulo, setEditarTitulo] = useState("");
   const [editarDescricao, setEditarDescricao] = useState("");
+  const [apenasFavoritos, setApenasFavoritos] = useState(false);
 
   const base = import.meta.env.VITE_API_URL;
   const skeletons = [1, 2, 3, 4];
+  const FAVORITOS_KEY = "skillshift_favoritos";
+
+  const lerFavoritos = () => {
+    try {
+      const raw = localStorage.getItem(FAVORITOS_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const salvarFavoritos = (ids: Array<string | number>) => {
+    const uniqIds = Array.from(new Set(ids.map((id) => id.toString())));
+    localStorage.setItem(FAVORITOS_KEY, JSON.stringify(uniqIds));
+  };
+
+  const aplicarFavoritos = (lista: RecomendacaoUI[]) => {
+    const favoritosSalvos = new Set(lerFavoritos().map((id) => id.toString()));
+    return lista.map((item) => ({
+      ...item,
+      favorito: favoritosSalvos.has(item.id.toString()),
+    }));
+  };
 
   const carregar = async () => {
     if (!base) {
@@ -25,7 +51,7 @@ const Recomendacoes = () => {
         { id: 1, titulo: "Curso: React Básico", descricao: "Fundamentos de componentes e hooks.", destaque: true },
         { id: 2, titulo: "Curso: TypeScript para Frontend", descricao: "Tipos, interfaces e boas práticas." },
       ];
-      setItems(mock);
+      setItems(aplicarFavoritos(mock));
       setLoading(false);
       return;
     }
@@ -35,7 +61,7 @@ const Recomendacoes = () => {
       const res = await fetch(`${base}/recomendacoes`);
       if (!res.ok) throw new Error("Erro ao buscar dados");
       const data: RecomendacaoUI[] = await res.json();
-      setItems(data);
+      setItems(aplicarFavoritos(data));
       setErro(null);
     } catch (e: any) {
       setErro(e.message ?? "Erro desconhecido");
@@ -58,6 +84,7 @@ const Recomendacoes = () => {
         id: Date.now(),
         titulo: novoTitulo,
         descricao: novaDescricao,
+        favorito: false,
       };
       setItems((prev) => [...prev, novoItem]);
       setNovoTitulo("");
@@ -86,6 +113,9 @@ const Recomendacoes = () => {
   const handleExcluir = async (id: string | number) => {
     if (!base) {
       setItems((prev) => prev.filter((it) => it.id !== id));
+      const favs = new Set(lerFavoritos().map((f) => f.toString()));
+      favs.delete(id.toString());
+      salvarFavoritos(Array.from(favs));
       return;
     }
 
@@ -95,6 +125,9 @@ const Recomendacoes = () => {
       });
       if (!res.ok) throw new Error("Erro ao excluir recomendação");
       await carregar();
+      const favs = new Set(lerFavoritos().map((f) => f.toString()));
+      favs.delete(id.toString());
+      salvarFavoritos(Array.from(favs));
     } catch (e: any) {
       setErro(e.message ?? "Erro ao excluir recomendação");
     }
@@ -149,7 +182,26 @@ const Recomendacoes = () => {
     setEditarDescricao("");
   };
 
+  const toggleFavorito = (id: string | number) => {
+    setItems((prev) => {
+      const favs = new Set(lerFavoritos().map((f) => f.toString()));
+      const idStr = id.toString();
+      const jaFavorito = favs.has(idStr);
+      if (jaFavorito) {
+        favs.delete(idStr);
+      } else {
+        favs.add(idStr);
+      }
+      salvarFavoritos(Array.from(favs));
+
+      return prev.map((it) =>
+        it.id === id ? { ...it, favorito: !jaFavorito } : it
+      );
+    });
+  };
+
   const filtradas = items.filter((it) => {
+    if (apenasFavoritos && !it.favorito) return false;
     if (!filtroTexto.trim()) return true;
     const termo = filtroTexto.toLowerCase();
     const titulo = it.titulo?.toLowerCase() ?? "";
@@ -276,6 +328,17 @@ const Recomendacoes = () => {
             <option value="score-desc">Maior score primeiro</option>
           </select>
         </div>
+        <div className="flex items-center md:items-end">
+          <label className="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+            <input
+              type="checkbox"
+              checked={apenasFavoritos}
+              onChange={(e) => setApenasFavoritos(e.target.checked)}
+              className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span>Mostrar apenas favoritos</span>
+          </label>
+        </div>
       </div>
 
       {loading && (
@@ -321,6 +384,17 @@ const Recomendacoes = () => {
                 Ver detalhes →
               </Link>
               <div className="flex items-center gap-3 text-xs">
+                <button
+                  type="button"
+                  onClick={() => toggleFavorito(it.id)}
+                  className={
+                    it.favorito
+                      ? "text-amber-500 hover:underline"
+                      : "text-slate-600 dark:text-slate-300 hover:underline"
+                  }
+                >
+                  {it.favorito ? "Remover dos favoritos" : "Favoritar"}
+                </button>
                 <button
                   type="button"
                   onClick={() => iniciarEdicao(it.id, it.titulo, it.descricao)}
