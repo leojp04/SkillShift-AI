@@ -12,6 +12,9 @@ const Recomendacoes = () => {
   const [novaDescricao, setNovaDescricao] = useState("");
   const [filtroTexto, setFiltroTexto] = useState("");
   const [ordem, setOrdem] = useState<"titulo-asc" | "titulo-desc" | "score-desc">("titulo-asc");
+  const [idEmEdicao, setIdEmEdicao] = useState<string | number | null>(null);
+  const [editarTitulo, setEditarTitulo] = useState("");
+  const [editarDescricao, setEditarDescricao] = useState("");
 
   const base = import.meta.env.VITE_API_URL;
   const skeletons = [1, 2, 3, 4];
@@ -95,6 +98,55 @@ const Recomendacoes = () => {
     } catch (e: any) {
       setErro(e.message ?? "Erro ao excluir recomendação");
     }
+  };
+
+  const iniciarEdicao = (id: string | number, titulo: string, descricao?: string) => {
+    setIdEmEdicao(id);
+    setEditarTitulo(titulo ?? "");
+    setEditarDescricao(descricao ?? "");
+  };
+
+  const handleSalvarEdicao = async (e: FormEvent) => {
+    e.preventDefault();
+    if (idEmEdicao === null || !editarTitulo.trim()) return;
+
+    if (!base) {
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === idEmEdicao ? { ...it, titulo: editarTitulo, descricao: editarDescricao } : it
+        )
+      );
+      setIdEmEdicao(null);
+      setEditarTitulo("");
+      setEditarDescricao("");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${base}/recomendacoes/${idEmEdicao}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: editarTitulo,
+          descricao: editarDescricao,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erro ao atualizar recomendação");
+
+      await carregar();
+      setIdEmEdicao(null);
+      setEditarTitulo("");
+      setEditarDescricao("");
+    } catch (e: any) {
+      setErro(e.message ?? "Erro ao atualizar recomendação");
+    }
+  };
+
+  const handleCancelarEdicao = () => {
+    setIdEmEdicao(null);
+    setEditarTitulo("");
+    setEditarDescricao("");
   };
 
   const filtradas = items.filter((it) => {
@@ -261,20 +313,29 @@ const Recomendacoes = () => {
                 </p>
               )}
             </div>
-            <div className="flex justify-between items-center mt-2">
+            <div className="flex justify-between items-center mt-2 gap-3">
               <Link
                 to={`/recomendacoes/${it.id}`}
                 className="text-xs text-indigo-500 hover:underline"
               >
                 Ver detalhes →
               </Link>
-              <button
-                type="button"
-                onClick={() => handleExcluir(it.id)}
-                className="text-xs text-red-500 hover:underline"
-              >
-                Excluir
-              </button>
+              <div className="flex items-center gap-3 text-xs">
+                <button
+                  type="button"
+                  onClick={() => iniciarEdicao(it.id, it.titulo, it.descricao)}
+                  className="text-slate-600 dark:text-slate-300 hover:underline"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExcluir(it.id)}
+                  className="text-red-500 hover:underline"
+                >
+                  Excluir
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -284,6 +345,65 @@ const Recomendacoes = () => {
         <p className="text-slate-500 dark:text-slate-400">
           Nenhuma recomendação disponível.
         </p>
+      )}
+
+      {idEmEdicao !== null && (
+        <form
+          onSubmit={handleSalvarEdicao}
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+              Editar recomendação
+            </h3>
+            <button
+              type="button"
+              onClick={handleCancelarEdicao}
+              className="text-sm text-slate-500 hover:underline"
+            >
+              Cancelar edição
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                Título
+              </label>
+              <input
+                value={editarTitulo}
+                onChange={(e) => setEditarTitulo(e.target.value)}
+                className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
+                placeholder="Ex: Trilha Front-end Júnior"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                Descrição
+              </label>
+              <input
+                value={editarDescricao}
+                onChange={(e) => setEditarDescricao(e.target.value)}
+                className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
+                placeholder="Ex: HTML, CSS, JS, React..."
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700"
+            >
+              Salvar alterações
+            </button>
+            <button
+              type="button"
+              onClick={handleCancelarEdicao}
+              className="text-sm text-slate-600 dark:text-slate-300 hover:underline"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );
