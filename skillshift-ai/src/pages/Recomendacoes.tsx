@@ -1,27 +1,45 @@
 ﻿import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
-import type { RecomendacaoUI } from "../types/recomendacao";
+
+type ApiRecomendacao = {
+  idRecomendacao: number;
+  idUsuario: number;
+  idCurso: number;
+  score: number;
+  fonte: string;
+  status: string;
+};
+
+type RecomendacaoUI = {
+  id: number;
+  titulo: string;
+  descricao: string;
+  score: number;
+  favorito?: boolean;
+};
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const Recomendacoes = () => {
   const [items, setItems] = useState<RecomendacaoUI[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
   const [novoTitulo, setNovoTitulo] = useState("");
   const [novaDescricao, setNovaDescricao] = useState("");
   const [filtroTexto, setFiltroTexto] = useState("");
   const [ordem, setOrdem] = useState<"titulo-asc" | "titulo-desc" | "score-desc">("titulo-asc");
-  const [idEmEdicao, setIdEmEdicao] = useState<string | number | null>(null);
+  const [idEmEdicao, setIdEmEdicao] = useState<number | null>(null);
   const [editarTitulo, setEditarTitulo] = useState("");
   const [editarDescricao, setEditarDescricao] = useState("");
   const [apenasFavoritos, setApenasFavoritos] = useState(false);
+  const [gerando, setGerando] = useState(false);
 
-  const base = import.meta.env.VITE_API_URL;
   const skeletons = [1, 2, 3, 4];
   const FAVORITOS_KEY = "skillshift_favoritos";
 
-  const lerFavoritos = () => {
+  const lerFavoritos = (): string[] => {
     try {
       const raw = localStorage.getItem(FAVORITOS_KEY);
       if (!raw) return [];
@@ -46,25 +64,42 @@ const Recomendacoes = () => {
   };
 
   const carregar = async () => {
-    if (!base) {
-      const mock: RecomendacaoUI[] = [
-        { id: 1, titulo: "Curso: React Básico", descricao: "Fundamentos de componentes e hooks.", destaque: true },
-        { id: 2, titulo: "Curso: TypeScript para Frontend", descricao: "Tipos, interfaces e boas práticas." },
-      ];
-      setItems(aplicarFavoritos(mock));
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     try {
-      const res = await fetch(`${base}/recomendacoes`);
-      if (!res.ok) throw new Error("Erro ao buscar dados");
-      const data: RecomendacaoUI[] = await res.json();
-      setItems(aplicarFavoritos(data));
+      let dados: RecomendacaoUI[] = [];
+
+      if (API_BASE) {
+        const res = await fetch(`${API_BASE}/recomendacoes?usuarioId=1`);
+        if (!res.ok) throw new Error("Erro ao buscar dados da API");
+        const apiData: ApiRecomendacao[] = await res.json();
+        dados = apiData.map((rec) => ({
+          id: rec.idRecomendacao,
+          titulo: `Curso ${rec.idCurso}`,
+          descricao: `Score: ${rec.score} | Status: ${rec.status} | Fonte: ${rec.fonte}`,
+          score: rec.score,
+        }));
+      } else {
+        dados = [
+          {
+            id: 1,
+            titulo: "Curso: React Básico",
+            descricao: "Fundamentos de componentes e hooks.",
+            score: 92,
+          },
+          {
+            id: 2,
+            titulo: "Curso: TypeScript para Frontend",
+            descricao: "Tipos, interfaces e boas práticas.",
+            score: 88,
+          },
+        ];
+      }
+
+      setItems(aplicarFavoritos(dados));
       setErro(null);
-    } catch (e: any) {
-      setErro(e.message ?? "Erro desconhecido");
+    } catch (e: unknown) {
+      const mensagem = e instanceof Error ? e.message : "Erro desconhecido";
+      setErro(mensagem);
     } finally {
       setLoading(false);
     }
@@ -74,16 +109,42 @@ const Recomendacoes = () => {
     carregar();
   }, []);
 
+  const gerarRecomendacoes = async () => {
+    if (!API_BASE) {
+      console.warn("API não configurada. Defina VITE_API_URL para usar a geração via IA.");
+      setErro("API não configurada. Defina VITE_API_URL para usar a geração via IA.");
+      return;
+    }
+
+    setGerando(true);
+    try {
+      const res = await fetch(`${API_BASE}/recomendacoes/gerar?usuarioId=1`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        throw new Error("Falha ao gerar novas recomendações");
+      }
+      await carregar();
+    } catch (e: unknown) {
+      console.error(e);
+      const mensagem = e instanceof Error ? e.message : "Erro ao gerar novas recomendações";
+      setErro(mensagem);
+    } finally {
+      setGerando(false);
+    }
+  };
+
   const handleCriar = async (e: FormEvent) => {
     e.preventDefault();
     if (!novoTitulo.trim()) return;
 
-    // Se não tiver API, só adiciona local
-    if (!base) {
+    if (!API_BASE) {
       const novoItem: RecomendacaoUI = {
         id: Date.now(),
         titulo: novoTitulo,
         descricao: novaDescricao,
+        score: 0,
         favorito: false,
       };
       setItems((prev) => [...prev, novoItem]);
@@ -93,7 +154,7 @@ const Recomendacoes = () => {
     }
 
     try {
-      const res = await fetch(`${base}/recomendacoes`, {
+      const res = await fetch(`${API_BASE}/recomendacoes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -105,13 +166,14 @@ const Recomendacoes = () => {
       await carregar();
       setNovoTitulo("");
       setNovaDescricao("");
-    } catch (e: any) {
-      setErro(e.message ?? "Erro ao criar recomendação");
+    } catch (e: unknown) {
+      const mensagem = e instanceof Error ? e.message : "Erro ao criar recomendação";
+      setErro(mensagem);
     }
   };
 
-  const handleExcluir = async (id: string | number) => {
-    if (!base) {
+  const handleExcluir = async (id: number) => {
+    if (!API_BASE) {
       setItems((prev) => prev.filter((it) => it.id !== id));
       const favs = new Set(lerFavoritos().map((f) => f.toString()));
       favs.delete(id.toString());
@@ -120,7 +182,7 @@ const Recomendacoes = () => {
     }
 
     try {
-      const res = await fetch(`${base}/recomendacoes/${id}`, {
+      const res = await fetch(`${API_BASE}/recomendacoes/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Erro ao excluir recomendação");
@@ -128,12 +190,13 @@ const Recomendacoes = () => {
       const favs = new Set(lerFavoritos().map((f) => f.toString()));
       favs.delete(id.toString());
       salvarFavoritos(Array.from(favs));
-    } catch (e: any) {
-      setErro(e.message ?? "Erro ao excluir recomendação");
+    } catch (e: unknown) {
+      const mensagem = e instanceof Error ? e.message : "Erro ao excluir recomendação";
+      setErro(mensagem);
     }
   };
 
-  const iniciarEdicao = (id: string | number, titulo: string, descricao?: string) => {
+  const iniciarEdicao = (id: number, titulo: string, descricao?: string) => {
     setIdEmEdicao(id);
     setEditarTitulo(titulo ?? "");
     setEditarDescricao(descricao ?? "");
@@ -143,7 +206,7 @@ const Recomendacoes = () => {
     e.preventDefault();
     if (idEmEdicao === null || !editarTitulo.trim()) return;
 
-    if (!base) {
+    if (!API_BASE) {
       setItems((prev) =>
         prev.map((it) =>
           it.id === idEmEdicao ? { ...it, titulo: editarTitulo, descricao: editarDescricao } : it
@@ -156,7 +219,7 @@ const Recomendacoes = () => {
     }
 
     try {
-      const res = await fetch(`${base}/recomendacoes/${idEmEdicao}`, {
+      const res = await fetch(`${API_BASE}/recomendacoes/${idEmEdicao}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -171,8 +234,9 @@ const Recomendacoes = () => {
       setIdEmEdicao(null);
       setEditarTitulo("");
       setEditarDescricao("");
-    } catch (e: any) {
-      setErro(e.message ?? "Erro ao atualizar recomendação");
+    } catch (e: unknown) {
+      const mensagem = e instanceof Error ? e.message : "Erro ao atualizar recomendação";
+      setErro(mensagem);
     }
   };
 
@@ -182,7 +246,7 @@ const Recomendacoes = () => {
     setEditarDescricao("");
   };
 
-  const toggleFavorito = (id: string | number) => {
+  const toggleFavorito = (id: number) => {
     setItems((prev) => {
       const favs = new Set(lerFavoritos().map((f) => f.toString()));
       const idStr = id.toString();
@@ -235,13 +299,28 @@ const Recomendacoes = () => {
         <p className="text-slate-700 dark:text-slate-200 mb-2 max-w-3xl">
           Recomendações de cursos e trilhas com base no perfil do usuário.
         </p>
-        {base ? (
+        {API_BASE ? (
           <p className="text-xs text-emerald-600 dark:text-emerald-400">
             Consumindo API remota
           </p>
         ) : (
           <p className="text-xs text-amber-600 dark:text-amber-400">
             Usando dados mock (API não configurada)
+          </p>
+        )}
+      </div>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <button
+          type="button"
+          onClick={gerarRecomendacoes}
+          disabled={gerando || loading}
+          className="px-4 py-2 rounded-md text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {gerando ? "Gerando recomendações..." : "Gerar novas recomendações via IA"}
+        </button>
+        {gerando && (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Aguarde, estamos gerando novas recomendações para você...
           </p>
         )}
       </div>
@@ -484,5 +563,3 @@ const Recomendacoes = () => {
 };
 
 export default Recomendacoes;
-
-
