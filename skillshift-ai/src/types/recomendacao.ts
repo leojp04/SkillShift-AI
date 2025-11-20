@@ -21,4 +21,5 @@ export interface ApiRecomendacao extends BaseRecomendacao {
 // Intersection type: recomendação exibida na UI
 export type RecomendacaoUI = ApiRecomendacao & {
   destaque?: boolean;
+  favorito?: boolean;
 };
