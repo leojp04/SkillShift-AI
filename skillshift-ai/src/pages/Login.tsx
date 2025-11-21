@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../config/api";
 
 type LoginResponse = {
   token: string;
@@ -8,8 +9,6 @@ type LoginResponse = {
     [key: string]: unknown;
   };
 };
-
-const API_BASE = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,11 +19,6 @@ const Login = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      return;
-    }
-
     setLoading(true);
     setErro(null);
 

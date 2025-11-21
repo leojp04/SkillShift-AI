@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
 
 type ApiEmpresa = {
   idEmpresa?: number;
@@ -26,8 +27,6 @@ const initialForm: EmpresaForm = {
   cnpj: "",
 };
 
-const API_BASE = import.meta.env.VITE_API_URL;
-
 const Empresas = () => {
   const [empresas, setEmpresas] = useState<ApiEmpresa[]>([]);
   const [form, setForm] = useState<EmpresaForm>(initialForm);
@@ -38,12 +37,6 @@ const Empresas = () => {
   const [erro, setErro] = useState<string | null>(null);
 
   const loadEmpresas = async () => {
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setErro(null);
     try {
@@ -86,11 +79,6 @@ const Empresas = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      return;
-    }
-
     const msg = validarForm();
     if (msg) {
       setErro(msg);
@@ -148,8 +136,8 @@ const Empresas = () => {
   };
 
   const deletar = async (id?: number) => {
-    if (!API_BASE || !id) {
-      setErro("API não configurada ou ID inválido.");
+    if (!id) {
+      setErro("ID inválido.");
       return;
     }
 

@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
 
 type ApiCurso = {
   idCurso?: number;
@@ -31,8 +32,6 @@ const initialForm: CursoForm = {
   nivel: "",
   ativo: true,
 };
-
-const API_BASE = import.meta.env.VITE_API_URL;
 
 const Cursos = () => {
   const [cursos, setCursos] = useState<ApiCurso[]>([]);
@@ -95,11 +94,6 @@ const Cursos = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      return;
-    }
-
     const mensagemValidacao = validarForm();
     if (mensagemValidacao) {
       setErro(mensagemValidacao);
@@ -162,8 +156,8 @@ const Cursos = () => {
   };
 
   const deletar = async (id?: number) => {
-    if (!API_BASE || !id) {
-      setErro("API não configurada ou ID inválido.");
+    if (!id) {
+      setErro("ID inválido.");
       return;
     }
 

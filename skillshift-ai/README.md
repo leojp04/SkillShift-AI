@@ -54,15 +54,11 @@ A aplicação permite:
 
 ```bash
 git clone https://github.com/leojp04/SkillShift-AI.git
-cd SkillShift-AI
+cd SkillShift-AI/skillshift-ai
 npm install
 
-Crie um arquivo .env com:
-
-VITE_API_URL=https://sua-api-no-render.onrender.com
-
-
-Se não informar a URL, a aplicação usará dados mock na página de recomendações.
+Opcional: crie um arquivo `.env` para sobrescrever a URL da API
+VITE_API_URL=https://api-skillshiftai.onrender.com
 
 ▶️ Como Usar
 
@@ -117,11 +113,12 @@ src/
 
 🔗 Integração com API
 
-A aplicação foi projetada para consumir uma API Java (Domain Driven Design Using Java):
+A aplicação consome a API publicada no Render:
 
-Base URL configurada via VITE_API_URL
+- Base URL padrão: `https://api-skillshiftai.onrender.com`
+- Pode ser sobrescrita via `VITE_API_URL` (env local ou Vercel)
 
-Endpoints esperados:
+Endpoints principais:
 
 GET /recomendacoes
 
@@ -129,7 +126,7 @@ POST /recomendacoes
 
 DELETE /recomendacoes/{id}
 
-Quando a API não está configurada, a aplicação utiliza dados mock no front-end para não quebrar a experiência.
+Se a env não for definida, o front usa a URL padrão acima (não há mais dados mock).
 
 👥 Autores e Créditos
 Nome	RM	Turma	GitHub	LinkedIn

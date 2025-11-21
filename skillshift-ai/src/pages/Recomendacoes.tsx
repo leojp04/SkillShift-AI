@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
 
 type ApiRecomendacao = {
   idRecomendacao?: number;
@@ -36,8 +37,6 @@ const initialForm: RecomendacaoForm = {
   cluster: "",
 };
 
-const API_BASE = import.meta.env.VITE_API_URL;
-
 const fontes: Array<RecomendacaoForm["fonte"]> = ["IA", "EMPRESA", "MANUAL"];
 const statusOptions: Array<RecomendacaoForm["status"]> = [
   "PENDENTE",
@@ -57,12 +56,6 @@ const Recomendacoes = () => {
   const [erro, setErro] = useState<string | null>(null);
 
   const loadRecomendacoes = async () => {
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setErro(null);
     try {
@@ -128,11 +121,6 @@ const Recomendacoes = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      return;
-    }
-
     const msg = validarForm();
     if (msg) {
       setErro(msg);
@@ -197,8 +185,8 @@ const Recomendacoes = () => {
   };
 
   const deletar = async (id?: number) => {
-    if (!API_BASE || !id) {
-      setErro("API não configurada ou ID inválido.");
+    if (!id) {
+      setErro("ID inválido.");
       return;
     }
 
@@ -225,10 +213,6 @@ const Recomendacoes = () => {
   };
 
   const gerarIA = async () => {
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      return;
-    }
     if (!filtroUsuario.trim()) {
       setErro("Informe o ID do usuário para gerar recomendações via IA.");
       return;
@@ -269,15 +253,9 @@ const Recomendacoes = () => {
         <p className="text-slate-700 dark:text-slate-200 mb-2">
           Gerencie e gere recomendações para os usuários cadastrados.
         </p>
-        {API_BASE ? (
-          <p className="text-xs text-emerald-600 dark:text-emerald-400">
-            Consumindo API remota
-          </p>
-        ) : (
-          <p className="text-xs text-amber-600 dark:text-amber-400">
-            API não configurada (VITE_API_URL ausente)
-          </p>
-        )}
+        <p className="text-xs text-emerald-600 dark:text-emerald-400">
+          Consumindo API remota em {API_BASE}
+        </p>
       </div>
 
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">

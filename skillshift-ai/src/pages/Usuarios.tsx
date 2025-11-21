@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
 
 type ApiUsuario = {
   idUsuario?: number;
@@ -39,8 +40,6 @@ const initialForm: UsuarioForm = {
   tipoPerfil: "",
 };
 
-const API_BASE = import.meta.env.VITE_API_URL;
-
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState<ApiUsuario[]>([]);
   const [form, setForm] = useState<UsuarioForm>(initialForm);
@@ -51,12 +50,6 @@ const Usuarios = () => {
   const [deletandoId, setDeletandoId] = useState<number | null>(null);
 
   const loadUsuarios = async () => {
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setErro(null);
     try {
@@ -107,11 +100,6 @@ const Usuarios = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!API_BASE) {
-      setErro("API não configurada (VITE_API_URL ausente).");
-      return;
-    }
-
     const mensagemValidacao = validarForm();
     if (mensagemValidacao) {
       setErro(mensagemValidacao);
@@ -182,8 +170,8 @@ const Usuarios = () => {
   };
 
   const deletar = async (id?: number) => {
-    if (!API_BASE || !id) {
-      setErro("API não configurada ou ID inválido.");
+    if (!id) {
+      setErro("ID inválido.");
       return;
     }
 
