@@ -94,7 +94,11 @@ src/
     Integrantes.tsx
     Recomendacoes.tsx
     DetalheRecomendacao.tsx
+    TrilhasDeCarreira.tsx
+    FAQ.tsx
     Contato.tsx
+    Login.tsx
+    NotFound.tsx
   types/
     recomendacao.ts
   App.tsx
@@ -113,7 +117,15 @@ src/
 
 /recomendacoes/:id – Detalhe de uma recomendação específica (rota dinâmica)
 
+/trilhas – Trilhas de carreira curadas
+
+/faq – Perguntas frequentes
+
 /contato – Página de contato (formulário mock)
+
+/login – Tela de autenticação
+
+Rotas de Cursos, Empresas e Usuários foram removidas do protótipo atual por não fazerem parte do escopo essencial.
 
 🔗 Integração com API
 

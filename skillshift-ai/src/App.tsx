@@ -10,9 +10,6 @@ import FAQ from "./pages/FAQ";
 import TrilhasDeCarreira from "./pages/TrilhasDeCarreira";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import Cursos from "./pages/Cursos";
-import Empresas from "./pages/Empresas";
-import Usuarios from "./pages/Usuarios";
 
 function App() {
   return (
@@ -24,9 +21,6 @@ function App() {
         <Route path="/integrantes" element={<Integrantes />} />
         <Route path="/recomendacoes" element={<Recomendacoes />} />
         <Route path="/recomendacoes/:id" element={<DetalheRecomendacao />} />
-        <Route path="/cursos" element={<Cursos />} />
-        <Route path="/usuarios" element={<Usuarios />} />
-        <Route path="/empresas" element={<Empresas />} />
         <Route path="/trilhas" element={<TrilhasDeCarreira />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contato" element={<Contato />} />

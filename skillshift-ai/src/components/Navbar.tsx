@@ -81,24 +81,6 @@ export const Navbar = () => {
             Recomendações
           </NavLink>
           <NavLink
-            to="/cursos"
-            className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-          >
-            Cursos
-          </NavLink>
-          <NavLink
-            to="/usuarios"
-            className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-          >
-            Usuários
-          </NavLink>
-          <NavLink
-            to="/empresas"
-            className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
-          >
-            Empresas
-          </NavLink>
-          <NavLink
             to="/trilhas"
             className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
           >
