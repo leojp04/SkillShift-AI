@@ -3,42 +3,42 @@ import type { ClusterProfileResponse, IaPayload, PredictAreaResponse } from "../
 import { getClusterProfile, predictArea } from "../services/iaApi";
 
 type IaForm = {
-  O_score: string;
-  C_score: string;
-  E_score: string;
-  A_score: string;
-  N_score: string;
-  "Numerical Aptitude": string;
-  "Spatial Aptitude": string;
-  "Perceptual Aptitude": string;
-  "Abstract Reasoning": string;
-  "Verbal Reasoning": string;
+  abertura: string;
+  conscienciosidade: string;
+  extroversao: string;
+  amabilidade: string;
+  neuroticismo: string;
+  aptidaoNumerica: string;
+  aptidaoEspacial: string;
+  aptidaoPerceptual: string;
+  raciocinioAbstrato: string;
+  raciocinioVerbal: string;
 };
 
 const initialIaForm: IaForm = {
-  O_score: "",
-  C_score: "",
-  E_score: "",
-  A_score: "",
-  N_score: "",
-  "Numerical Aptitude": "",
-  "Spatial Aptitude": "",
-  "Perceptual Aptitude": "",
-  "Abstract Reasoning": "",
-  "Verbal Reasoning": "",
+  abertura: "",
+  conscienciosidade: "",
+  extroversao: "",
+  amabilidade: "",
+  neuroticismo: "",
+  aptidaoNumerica: "",
+  aptidaoEspacial: "",
+  aptidaoPerceptual: "",
+  raciocinioAbstrato: "",
+  raciocinioVerbal: "",
 };
 
 const iaFields: Array<{ key: keyof IaForm; label: string }> = [
-  { key: "O_score", label: "Abertura (O_score)" },
-  { key: "C_score", label: "Conscienciosidade (C_score)" },
-  { key: "E_score", label: "Extroversão (E_score)" },
-  { key: "A_score", label: "Amabilidade (A_score)" },
-  { key: "N_score", label: "Neuroticismo (N_score)" },
-  { key: "Numerical Aptitude", label: "Aptidão Numérica" },
-  { key: "Spatial Aptitude", label: "Aptidão Espacial" },
-  { key: "Perceptual Aptitude", label: "Aptidão Perceptual" },
-  { key: "Abstract Reasoning", label: "Raciocínio Abstrato" },
-  { key: "Verbal Reasoning", label: "Raciocínio Verbal" },
+  { key: "abertura", label: "Abertura" },
+  { key: "conscienciosidade", label: "Conscienciosidade" },
+  { key: "extroversao", label: "Extroversão" },
+  { key: "amabilidade", label: "Amabilidade" },
+  { key: "neuroticismo", label: "Neuroticismo" },
+  { key: "aptidaoNumerica", label: "Aptidão Numérica" },
+  { key: "aptidaoEspacial", label: "Aptidão Espacial" },
+  { key: "aptidaoPerceptual", label: "Aptidão Perceptual" },
+  { key: "raciocinioAbstrato", label: "Raciocínio Abstrato" },
+  { key: "raciocinioVerbal", label: "Raciocínio Verbal" },
 ];
 
 const Recomendacoes = () => {
@@ -74,16 +74,16 @@ const Recomendacoes = () => {
     }
 
     const payload: IaPayload = {
-      O_score: Number(iaForm.O_score),
-      C_score: Number(iaForm.C_score),
-      E_score: Number(iaForm.E_score),
-      A_score: Number(iaForm.A_score),
-      N_score: Number(iaForm.N_score),
-      "Numerical Aptitude": Number(iaForm["Numerical Aptitude"]),
-      "Spatial Aptitude": Number(iaForm["Spatial Aptitude"]),
-      "Perceptual Aptitude": Number(iaForm["Perceptual Aptitude"]),
-      "Abstract Reasoning": Number(iaForm["Abstract Reasoning"]),
-      "Verbal Reasoning": Number(iaForm["Verbal Reasoning"]),
+      O_score: Number(iaForm.abertura),
+      C_score: Number(iaForm.conscienciosidade),
+      E_score: Number(iaForm.extroversao),
+      A_score: Number(iaForm.amabilidade),
+      N_score: Number(iaForm.neuroticismo),
+      "Numerical Aptitude": Number(iaForm.aptidaoNumerica),
+      "Spatial Aptitude": Number(iaForm.aptidaoEspacial),
+      "Perceptual Aptitude": Number(iaForm.aptidaoPerceptual),
+      "Abstract Reasoning": Number(iaForm.raciocinioAbstrato),
+      "Verbal Reasoning": Number(iaForm.raciocinioVerbal),
     };
 
     setIaErro(null);
@@ -110,9 +110,11 @@ const Recomendacoes = () => {
   return (
     <div className="max-w-6xl mx-auto py-10 px-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Recomendações</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          Recomendações via IA (Flask)
+        </h1>
         <p className="text-slate-700 dark:text-slate-200">
-          Gere recomendações usando a API de IA (Flask) com os 10 campos exigidos.
+          Informe suas 10 notas de perfil (0 a 10) para receber macro-área e cursos recomendados.
         </p>
       </div>
 
@@ -123,7 +125,7 @@ const Recomendacoes = () => {
               Recomendações via IA (Flask)
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              Informe as 10 notas exigidas pela API para receber macro-área e cursos sugeridos.
+              Informe suas 10 notas de perfil (0 a 10) para receber macro-área e cursos recomendados.
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Endpoints: /predict-area e /cluster-profile em skillshift-ai-platform.onrender.com
@@ -140,7 +142,9 @@ const Recomendacoes = () => {
                 </label>
                 <input
                   type="number"
-                  step="0.1"
+                  min={0}
+                  max={10}
+                  step={0.1}
                   value={iaForm[field.key]}
                   onChange={(e) => handleIaChange(field.key, e.target.value)}
                   className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
