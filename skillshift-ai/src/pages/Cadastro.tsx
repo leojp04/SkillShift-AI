@@ -2,25 +2,35 @@ import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const Login = () => {
-  const { login } = useAuth();
+const Cadastro = () => {
+  const { cadastrar } = useAuth();
   const navigate = useNavigate();
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setErro(null);
+    if (!nome.trim() || !email.trim() || !senha.trim() || !confirmarSenha.trim()) {
+      setErro("Preencha todos os campos.");
+      return;
+    }
+    if (senha !== confirmarSenha) {
+      setErro("As senhas não conferem.");
+      return;
+    }
 
+    setErro(null);
+    setLoading(true);
     try {
-      await login({ email, senha });
+      await cadastrar({ nome: nome.trim(), email: email.trim(), senha });
       navigate("/perfil");
-    } catch (error: unknown) {
-      const mensagem = error instanceof Error ? error.message : "E-mail ou senha inválidos.";
-      setErro(mensagem);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Não foi possível cadastrar.";
+      setErro(msg);
     } finally {
       setLoading(false);
     }
@@ -31,10 +41,10 @@ const Login = () => {
       <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg space-y-6">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Entrar no SkillShift AI
+            Criar conta
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-            Utilize suas credenciais para acessar as recomendações personalizadas.
+            Cadastre-se para acessar recomendações personalizadas.
           </p>
         </div>
 
@@ -45,6 +55,24 @@ const Login = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="nome"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1"
+            >
+              Nome
+            </label>
+            <input
+              id="nome"
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
+              placeholder="Seu nome"
+              required
+            />
+          </div>
+
           <div>
             <label
               htmlFor="email"
@@ -76,7 +104,25 @@ const Login = () => {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
-              placeholder="Sua senha"
+              placeholder="Mínimo 6 caracteres"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmarSenha"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1"
+            >
+              Confirmar senha
+            </label>
+            <input
+              id="confirmarSenha"
+              type="password"
+              value={confirmarSenha}
+              onChange={(e) => setConfirmarSenha(e.target.value)}
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
+              placeholder="Repita a senha"
               required
             />
           </div>
@@ -86,7 +132,7 @@ const Login = () => {
             disabled={loading}
             className="w-full px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
         </form>
       </div>
@@ -94,4 +140,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Cadastro;

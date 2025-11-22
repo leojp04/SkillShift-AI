@@ -1,6 +1,8 @@
 import { FormEvent, useState } from "react";
 import type { ClusterProfileResponse, IaPayload, PredictAreaResponse } from "../services/iaApi";
 import { getClusterProfile, predictArea } from "../services/iaApi";
+import { useAuth } from "../contexts/AuthContext";
+import { appendHistory } from "../utils/recommendationHistory";
 
 type IaForm = {
   abertura: string;
@@ -42,6 +44,7 @@ const iaFields: Array<{ key: keyof IaForm; label: string }> = [
 ];
 
 const Recomendacoes = () => {
+  const { usuario } = useAuth();
   const [iaForm, setIaForm] = useState<IaForm>(initialIaForm);
   const [iaErro, setIaErro] = useState<string | null>(null);
   const [iaLoading, setIaLoading] = useState(false);
@@ -96,6 +99,14 @@ const Recomendacoes = () => {
       setResultadoArea(area);
       const cluster = await getClusterProfile(payload);
       setResultadoCluster(cluster);
+      if (usuario) {
+        appendHistory({
+          userId: usuario.id,
+          data: new Date().toISOString(),
+          macro_area: area.macro_area,
+          cursos_recomendados: cluster.cursos_recomendados,
+        });
+      }
     } catch (e: unknown) {
       const mensagem =
         e instanceof Error

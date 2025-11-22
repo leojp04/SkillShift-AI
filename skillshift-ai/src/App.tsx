@@ -9,6 +9,8 @@ import DetalheRecomendacao from "./pages/DetalheRecomendacao";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import Perfil from "./pages/Perfil";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contato" element={<Contato />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/perfil" element={<Perfil />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
