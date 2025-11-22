@@ -1,499 +1,207 @@
-import { FormEvent, useEffect, useState } from "react";
-import { API_BASE } from "../config/api";
+import { FormEvent, useState } from "react";
+import type { ClusterProfileResponse, IaPayload, PredictAreaResponse } from "../services/iaApi";
+import { getClusterProfile, predictArea } from "../services/iaApi";
 
-type ApiRecomendacao = {
-  idRecomendacao?: number;
-  idUsuario: number;
-  idCurso: number;
-  score: number;
-  fonte: "IA" | "EMPRESA" | "MANUAL";
-  status: "PENDENTE" | "EM_ANDAMENTO" | "CONCLUIDA";
-  dataRecomendacao?: string | null;
-  cluster?: number | null;
-  payloadIa?: string | null;
+type IaForm = {
+  O_score: string;
+  C_score: string;
+  E_score: string;
+  A_score: string;
+  N_score: string;
+  "Numerical Aptitude": string;
+  "Spatial Aptitude": string;
+  "Perceptual Aptitude": string;
+  "Abstract Reasoning": string;
+  "Verbal Reasoning": string;
 };
 
-type ApiMensagem = {
-  mensagem: string;
+const initialIaForm: IaForm = {
+  O_score: "",
+  C_score: "",
+  E_score: "",
+  A_score: "",
+  N_score: "",
+  "Numerical Aptitude": "",
+  "Spatial Aptitude": "",
+  "Perceptual Aptitude": "",
+  "Abstract Reasoning": "",
+  "Verbal Reasoning": "",
 };
 
-type RecomendacaoForm = {
-  idUsuario: string;
-  idCurso: string;
-  score: string;
-  fonte: "" | "IA" | "EMPRESA" | "MANUAL";
-  status: "" | "PENDENTE" | "EM_ANDAMENTO" | "CONCLUIDA";
-  dataRecomendacao: string;
-  cluster: string;
-};
-
-const initialForm: RecomendacaoForm = {
-  idUsuario: "",
-  idCurso: "",
-  score: "",
-  fonte: "",
-  status: "",
-  dataRecomendacao: "",
-  cluster: "",
-};
-
-const fontes: Array<RecomendacaoForm["fonte"]> = ["IA", "EMPRESA", "MANUAL"];
-const statusOptions: Array<RecomendacaoForm["status"]> = [
-  "PENDENTE",
-  "EM_ANDAMENTO",
-  "CONCLUIDA",
+const iaFields: Array<{ key: keyof IaForm; label: string }> = [
+  { key: "O_score", label: "Abertura (O_score)" },
+  { key: "C_score", label: "Conscienciosidade (C_score)" },
+  { key: "E_score", label: "Extroversão (E_score)" },
+  { key: "A_score", label: "Amabilidade (A_score)" },
+  { key: "N_score", label: "Neuroticismo (N_score)" },
+  { key: "Numerical Aptitude", label: "Aptidão Numérica" },
+  { key: "Spatial Aptitude", label: "Aptidão Espacial" },
+  { key: "Perceptual Aptitude", label: "Aptidão Perceptual" },
+  { key: "Abstract Reasoning", label: "Raciocínio Abstrato" },
+  { key: "Verbal Reasoning", label: "Raciocínio Verbal" },
 ];
 
 const Recomendacoes = () => {
-  const [lista, setLista] = useState<ApiRecomendacao[]>([]);
-  const [form, setForm] = useState<RecomendacaoForm>(initialForm);
-  const [editandoId, setEditandoId] = useState<number | null>(null);
-  const [filtroUsuario, setFiltroUsuario] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-  const [gerando, setGerando] = useState(false);
-  const [deletandoId, setDeletandoId] = useState<number | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
+  const [iaForm, setIaForm] = useState<IaForm>(initialIaForm);
+  const [iaErro, setIaErro] = useState<string | null>(null);
+  const [iaLoading, setIaLoading] = useState(false);
+  const [resultadoArea, setResultadoArea] = useState<PredictAreaResponse | null>(null);
+  const [resultadoCluster, setResultadoCluster] = useState<ClusterProfileResponse | null>(null);
 
-  const loadRecomendacoes = async () => {
-    setLoading(true);
-    setErro(null);
-    try {
-      const query = filtroUsuario.trim()
-        ? `?usuarioId=${encodeURIComponent(filtroUsuario.trim())}`
-        : "";
-      const res = await fetch(`${API_BASE}/recomendacoes${query}`);
-      if (!res.ok) {
-        const body: ApiMensagem = await res.json();
-        throw new Error(body?.mensagem ?? "Erro ao carregar recomendações.");
+  const handleIaChange = (campo: keyof IaForm, valor: string) => {
+    setIaForm((prev) => ({ ...prev, [campo]: valor }));
+  };
+
+  const validarIaForm = () => {
+    for (const field of iaFields) {
+      const valor = iaForm[field.key];
+      if (!valor.toString().trim()) {
+        return `Preencha o campo "${field.label}".`;
       }
-      const data: ApiRecomendacao[] = await res.json();
-      setLista(data);
-    } catch (e: unknown) {
-      const mensagem = e instanceof Error ? e.message : "Erro desconhecido.";
-      setErro(mensagem);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadRecomendacoes();
-  }, []);
-
-  const handleChange = (campo: keyof RecomendacaoForm, valor: string) => {
-    setForm((prev) => ({ ...prev, [campo]: valor }));
-  };
-
-  const resetarForm = () => {
-    setForm(initialForm);
-    setEditandoId(null);
-  };
-
-  const validarForm = () => {
-    if (!form.idUsuario.trim() || Number.isNaN(Number(form.idUsuario))) {
-      return "ID do usuário é obrigatório.";
-    }
-    if (!form.idCurso.trim() || Number.isNaN(Number(form.idCurso))) {
-      return "ID do curso é obrigatório.";
-    }
-    if (!form.score.trim() || Number.isNaN(Number(form.score))) {
-      return "Score é obrigatório.";
-    }
-    const scoreVal = Number(form.score);
-    if (scoreVal < 0 || scoreVal > 100) {
-      return "Score deve estar entre 0 e 100.";
-    }
-    if (!form.fonte) {
-      return "Fonte é obrigatória.";
-    }
-    if (!form.status) {
-      return "Status é obrigatório.";
-    }
-    if (form.dataRecomendacao && Number.isNaN(Date.parse(form.dataRecomendacao))) {
-      return "Data inválida.";
-    }
-    if (form.cluster && Number.isNaN(Number(form.cluster))) {
-      return "Cluster deve ser numérico.";
+      if (Number.isNaN(Number(valor))) {
+        return `O campo "${field.label}" deve ser numérico.`;
+      }
     }
     return null;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleIaSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const msg = validarForm();
+    const msg = validarIaForm();
     if (msg) {
-      setErro(msg);
+      setIaErro(msg);
       return;
     }
 
-    setSalvando(true);
-    setErro(null);
+    const payload: IaPayload = {
+      O_score: Number(iaForm.O_score),
+      C_score: Number(iaForm.C_score),
+      E_score: Number(iaForm.E_score),
+      A_score: Number(iaForm.A_score),
+      N_score: Number(iaForm.N_score),
+      "Numerical Aptitude": Number(iaForm["Numerical Aptitude"]),
+      "Spatial Aptitude": Number(iaForm["Spatial Aptitude"]),
+      "Perceptual Aptitude": Number(iaForm["Perceptual Aptitude"]),
+      "Abstract Reasoning": Number(iaForm["Abstract Reasoning"]),
+      "Verbal Reasoning": Number(iaForm["Verbal Reasoning"]),
+    };
+
+    setIaErro(null);
+    setIaLoading(true);
+    setResultadoArea(null);
+    setResultadoCluster(null);
 
     try {
-      const payload: ApiRecomendacao = {
-        idUsuario: Number(form.idUsuario),
-        idCurso: Number(form.idCurso),
-        score: Number(form.score),
-        fonte: form.fonte as ApiRecomendacao["fonte"],
-        status: form.status as ApiRecomendacao["status"],
-        dataRecomendacao: form.dataRecomendacao || null,
-        cluster: form.cluster ? Number(form.cluster) : null,
-      };
-
-      const metodo = editandoId ? "PUT" : "POST";
-      const url = editandoId
-        ? `${API_BASE}/recomendacoes/${editandoId}`
-        : `${API_BASE}/recomendacoes`;
-
-      const res = await fetch(url, {
-        method: metodo,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const body: ApiMensagem = await res.json();
-        throw new Error(body?.mensagem ?? "Erro ao salvar recomendação.");
-      }
-
-      resetarForm();
-      await loadRecomendacoes();
+      const area = await predictArea(payload);
+      setResultadoArea(area);
+      const cluster = await getClusterProfile(payload);
+      setResultadoCluster(cluster);
     } catch (e: unknown) {
-      const mensagem = e instanceof Error ? e.message : "Erro ao salvar recomendação.";
-      setErro(mensagem);
+      const mensagem =
+        e instanceof Error
+          ? e.message
+          : "Não foi possível gerar recomendações no momento. Tente novamente mais tarde.";
+      setIaErro(mensagem || "Não foi possível gerar recomendações no momento. Tente novamente mais tarde.");
     } finally {
-      setSalvando(false);
-    }
-  };
-
-  const editar = (rec: ApiRecomendacao) => {
-    setEditandoId(rec.idRecomendacao ?? null);
-    setForm({
-      idUsuario: rec.idUsuario?.toString() ?? "",
-      idCurso: rec.idCurso?.toString() ?? "",
-      score: rec.score?.toString() ?? "",
-      fonte: rec.fonte ?? "",
-      status: rec.status ?? "",
-      dataRecomendacao: rec.dataRecomendacao ?? "",
-      cluster: rec.cluster?.toString() ?? "",
-    });
-  };
-
-  const cancelarEdicao = () => {
-    resetarForm();
-  };
-
-  const deletar = async (id?: number) => {
-    if (!id) {
-      setErro("ID inválido.");
-      return;
-    }
-
-    setDeletandoId(id);
-    setErro(null);
-    try {
-      const res = await fetch(`${API_BASE}/recomendacoes/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const body: ApiMensagem = await res.json();
-        throw new Error(body?.mensagem ?? "Erro ao excluir recomendação.");
-      }
-
-      if (editandoId === id) resetarForm();
-      await loadRecomendacoes();
-    } catch (e: unknown) {
-      const mensagem = e instanceof Error ? e.message : "Erro ao excluir recomendação.";
-      setErro(mensagem);
-    } finally {
-      setDeletandoId(null);
-    }
-  };
-
-  const gerarIA = async () => {
-    if (!filtroUsuario.trim()) {
-      setErro("Informe o ID do usuário para gerar recomendações via IA.");
-      return;
-    }
-
-    setGerando(true);
-    setErro(null);
-    try {
-      const res = await fetch(
-        `${API_BASE}/recomendacoes/gerar?usuarioId=${encodeURIComponent(
-          filtroUsuario.trim()
-        )}`,
-        {
-          method: "POST",
-        }
-      );
-
-      if (!res.ok) {
-        const body = (await res.json()) as ApiMensagem & { erro?: string };
-        throw new Error(body?.mensagem ?? body?.erro ?? "Erro ao gerar recomendações.");
-      }
-
-      await loadRecomendacoes();
-    } catch (e: unknown) {
-      const mensagem = e instanceof Error ? e.message : "Erro ao gerar recomendações.";
-      setErro(mensagem);
-    } finally {
-      setGerando(false);
+      setIaLoading(false);
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-          Recomendações
-        </h1>
-        <p className="text-slate-700 dark:text-slate-200 mb-2">
-          Gerencie e gere recomendações para os usuários cadastrados.
-        </p>
-        <p className="text-xs text-emerald-600 dark:text-emerald-400">
-          Consumindo API remota em {API_BASE}
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Recomendações</h1>
+        <p className="text-slate-700 dark:text-slate-200">
+          Gere recomendações usando a API de IA (Flask) com os 10 campos exigidos.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-            Filtrar por ID de usuário
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              min="0"
-              value={filtroUsuario}
-              onChange={(e) => setFiltroUsuario(e.target.value)}
-              className="w-full max-w-xs px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-              placeholder="Ex: 1"
-            />
-            <button
-              type="button"
-              onClick={loadRecomendacoes}
-              className="px-3 py-2 rounded-md bg-slate-100 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-            >
-              Aplicar filtro
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={gerarIA}
-            disabled={gerando || !filtroUsuario.trim()}
-            className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {gerando ? "Gerando via IA..." : "Gerar via IA"}
-          </button>
-          {gerando && (
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Aguarde, estamos buscando novas recomendações.
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Recomendações via IA (Flask)
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Informe as 10 notas exigidas pela API para receber macro-área e cursos sugeridos.
             </p>
-          )}
-        </div>
-      </div>
-
-      {erro && (
-        <div className="text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 px-3 py-3 rounded-lg">
-          {erro}
-        </div>
-      )}
-
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100">
-            {editandoId ? "Editar recomendação" : "Adicionar recomendação manual"}
-          </h2>
-          {editandoId && (
-            <button
-              type="button"
-              onClick={cancelarEdicao}
-              className="text-sm text-slate-500 hover:underline"
-            >
-              Cancelar edição
-            </button>
-          )}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              ID do usuário
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={form.idUsuario}
-              onChange={(e) => handleChange("idUsuario", e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              ID do curso
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={form.idCurso}
-              onChange={(e) => handleChange("idCurso", e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              Score (0 a 100)
-            </label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={form.score}
-              onChange={(e) => handleChange("score", e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              Fonte
-            </label>
-            <select
-              value={form.fonte}
-              onChange={(e) =>
-                handleChange("fonte", e.target.value as RecomendacaoForm["fonte"])
-              }
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-              required
-            >
-              <option value="">Selecione</option>
-              {fontes.map((fonte) => (
-                <option key={fonte} value={fonte}>
-                  {fonte}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              Status
-            </label>
-            <select
-              value={form.status}
-              onChange={(e) =>
-                handleChange("status", e.target.value as RecomendacaoForm["status"])
-              }
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-              required
-            >
-              <option value="">Selecione</option>
-              {statusOptions.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              Data recomendação
-            </label>
-            <input
-              type="date"
-              value={form.dataRecomendacao}
-              onChange={(e) => handleChange("dataRecomendacao", e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-              Cluster (opcional)
-            </label>
-            <input
-              type="number"
-              value={form.cluster}
-              onChange={(e) => handleChange("cluster", e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
-            />
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Endpoints: /predict-area e /cluster-profile em skillshift-ai-platform.onrender.com
+            </p>
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={salvando}
-          className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {salvando
-            ? "Salvando..."
-            : editandoId
-            ? "Atualizar recomendação"
-            : "Adicionar recomendação"}
-        </button>
-      </form>
-
-      <div className="space-y-4">
-        {loading ? (
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Carregando recomendações...</p>
-        ) : lista.length === 0 ? (
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Nenhuma recomendação encontrada.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {lista.map((rec) => (
-              <div
-                key={rec.idRecomendacao}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col gap-2 shadow-sm"
-              >
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Usuário #{rec.idUsuario}
-                  </h3>
-                  <span className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
-                    {rec.status}
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-300">
-                  Curso: {rec.idCurso}
-                </p>
-                <p className="text-sm text-slate-500 dark:text-slate-300">
-                  Score: {rec.score}
-                </p>
-                <p className="text-sm text-slate-500 dark:text-slate-300">
-                  Fonte: {rec.fonte}
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500">
-                  Data: {rec.dataRecomendacao ?? "—"}
-                </p>
-                {rec.cluster !== null && rec.cluster !== undefined && (
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Cluster: {rec.cluster}</p>
-                )}
-                <div className="flex gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => editar(rec)}
-                    className="px-3 py-1 rounded-md text-xs bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deletar(rec.idRecomendacao)}
-                    disabled={deletandoId === rec.idRecomendacao}
-                    className="px-3 py-1 rounded-md text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 disabled:opacity-60"
-                  >
-                    {deletandoId === rec.idRecomendacao ? "Excluindo..." : "Excluir"}
-                  </button>
-                </div>
+        <form onSubmit={handleIaSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {iaFields.map((field) => (
+              <div key={field.key}>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                  {field.label}
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={iaForm[field.key]}
+                  onChange={(e) => handleIaChange(field.key, e.target.value)}
+                  className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100"
+                  required
+                />
               </div>
             ))}
+          </div>
+
+          {iaErro && (
+            <div className="text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 px-3 py-3 rounded-lg">
+              {iaErro}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={iaLoading}
+              className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {iaLoading ? "Gerando recomendações..." : "Gerar recomendações"}
+            </button>
+            {iaLoading && (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Consultando a API de IA, aguarde...
+              </p>
+            )}
+          </div>
+        </form>
+
+        {(resultadoArea || resultadoCluster) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {resultadoArea && (
+              <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-800/60">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                  Macro-área sugerida
+                </h3>
+                <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
+                  {resultadoArea.macro_area}
+                </p>
+                <p className="text-sm text-slate-700 dark:text-slate-200 mt-1">
+                  {resultadoArea.explicacao}
+                </p>
+              </div>
+            )}
+            {resultadoCluster && (
+              <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-800/60">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                  Cluster e cursos recomendados
+                </h3>
+                <p className="text-sm text-slate-700 dark:text-slate-200 mb-2">
+                  Cluster #{resultadoCluster.cluster}
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm text-slate-700 dark:text-slate-200">
+                  {resultadoCluster.cursos_recomendados.map((curso) => (
+                    <li key={curso}>{curso}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </div>
