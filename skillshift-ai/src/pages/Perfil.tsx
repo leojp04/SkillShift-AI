@@ -1,12 +1,10 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { fetchHistory } from "../services/historyApi";
 import type { RecommendationHistoryItem } from "../services/historyApi";
 
 const Perfil = () => {
   const { usuario, token, atualizarSenha, logout } = useAuth();
-  const navigate = useNavigate();
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
@@ -18,11 +16,7 @@ const Perfil = () => {
 
   useEffect(() => {
     let active = true;
-    if (!usuario) {
-      navigate("/login", { replace: true });
-      return;
-    }
-    if (!token) return;
+    if (!usuario || !token) return;
     setLoadingHist(true);
     fetchHistory(token)
       .then((entries) => {
@@ -39,7 +33,7 @@ const Perfil = () => {
     return () => {
       active = false;
     };
-  }, [usuario, token, navigate]);
+  }, [usuario, token]);
 
   if (!usuario) return null;
 

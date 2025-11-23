@@ -45,6 +45,8 @@ const persistAuth = (res: AuthResponse) => {
   localStorage.setItem(USER_KEY, JSON.stringify(res.usuario));
 };
 
+export type { SimpleUser };
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [usuario, setUsuario] = useState<SimpleUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -100,7 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value = useMemo(
     () => ({ usuario, token, loading, error, login, logout, cadastrar, atualizarSenha }),
-    [usuario, token, loading, error]
+    [usuario, token, loading, error, login, logout, cadastrar, atualizarSenha]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

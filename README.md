@@ -19,7 +19,8 @@ Plataforma acadêmica de requalificação profissional com IA, alinhada ao Futur
 7. [Integração com APIs](#-integração-com-apis)  
 8. [Integrantes](#integrantes)  
 9. [Screenshots / Demonstração](#-screenshots--demonstração)  
-10. [Contato](#-contato)  
+10. [Vídeo de Demonstração](#vídeo-de-demonstração)  
+11. [Contato](#-contato)  
 
 ---
 
@@ -90,10 +91,9 @@ skillshift-ai/
 │   ├── Pedro.jpeg
 │   └── vite.svg
 ├── src/
-│   ├── assets/
-│   │   └── react.svg
 │   ├── components/
-│   │   └── Navbar.tsx
+│   │   ├── Navbar.tsx
+│   │   └── RequireAuth.tsx
 │   ├── config/
 │   │   └── api.ts
 │   ├── contexts/
@@ -121,7 +121,6 @@ skillshift-ai/
 │   │   └── recomendacao.ts
 │   ├── utils/
 │   │   └── recommendationHistory.ts
-│   ├── App.css
 │   ├── App.tsx
 │   ├── index.css
 │   └── main.tsx
@@ -174,24 +173,50 @@ Erros são tratados com mensagens amigáveis e estados de loading nas telas de L
 ## Integrantes
 
 - **Leonardo José Pereira** — RM **563065** — 1TDSPW  
-  GitHub: https://github.com/leojp04 · LinkedIn: https://www.linkedin.com/in/leonardo-pereira-adm
-- **Fabricio Henrique Pereira** — RM **563237** — 1TDSPW  
-  GitHub: https://github.com/Fabriciopereira-sp · LinkedIn: https://www.linkedin.com/in/fabrício-henrique-pereira-3aa94933b/
-- **Pedro Henrique de Oliveira ** — RM **562312** — 1TDSPW  
-  GitHub: https://github.com/pedrinzz10 · LinkedIn: https://www.linkedin.com/in/pedro-henrique-oliveira-484336261/
+  GitHub: https://github.com/leojp04 • LinkedIn: https://www.linkedin.com/in/leonardo-pereira-adm/
+- **Fabrício Henrique Pereira** — RM **563237** — 1TDSPW  
+  GitHub: https://github.com/Fabriciopereira-sp • LinkedIn: https://www.linkedin.com/in/fabr%C3%ADcio-henrique-pereira-3aa94933b/
+- **Pedro Henrique de Oliveira** — RM **562312** — 1TDSPW  
+  GitHub: https://github.com/pedrinzz10 • LinkedIn: https://www.linkedin.com/in/pedro-henrique-oliveira-484336261/
 
 
 ---
 
 ## 🖼 Screenshots / Demonstração
 
+> As imagens abaixo ilustram as principais telas da aplicação SkillShift AI.
 
- 
+- **Home / Início**
+
+  ![Home](./docs/screenshots/home.png)
+
+- **Recomendações de Carreira**
+
+  ![Recomendações](./docs/screenshots/recomendacoes.png)
+
+- **Histórico de Recomendações**
+
+  ![Histórico](./docs/screenshots/historico.png)
+
+- **Perfil do Usuário**
+
+  ![Perfil](./docs/screenshots/perfil.png)
+
+- **Integrantes do Projeto**
+
+  ![Integrantes](./docs/screenshots/integrantes.png)
+
+---
+
+## Vídeo de Demonstração
+
+
+- 🔗 [Assista ao vídeo no YouTube](https://youtu.be/SEU_VIDEO_AQUI)
 
 ---
 
 ## 📬 Contato
 - Projeto: https://github.com/leojp04/SkillShift-AI  
 - Deploy: https://skill-shift-ai-rust.vercel.app  
-- Equipe (RMs e turma): ver tabela de Autores.  
+- Equipe (RMs e turma): ver seção de Integrantes.  
  

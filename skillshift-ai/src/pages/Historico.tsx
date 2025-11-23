@@ -2,26 +2,21 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { fetchHistory } from "../services/historyApi";
 import type { RecommendationHistoryItem } from "../services/historyApi";
-import { useNavigate } from "react-router-dom";
 
 const Historico = () => {
   const { token, usuario } = useAuth();
-  const navigate = useNavigate();
   const [items, setItems] = useState<RecommendationHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!usuario || !token) {
-      navigate("/login", { replace: true });
-      return;
-    }
+    if (!usuario || !token) return;
     setLoading(true);
     fetchHistory(token)
       .then(setItems)
       .catch((err) => setErro(err instanceof Error ? err.message : "Erro ao carregar histórico."))
       .finally(() => setLoading(false));
-  }, [usuario, token, navigate]);
+  }, [usuario, token]);
 
   if (!usuario) return null;
 

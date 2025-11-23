@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Perfil from "./pages/Perfil";
 import Historico from "./pages/Historico";
+import { RequireAuth } from "./components/RequireAuth";
 
 function App() {
   return (
@@ -23,12 +24,26 @@ function App() {
         <Route path="/integrantes" element={<Integrantes />} />
         <Route path="/recomendacoes" element={<Recomendacoes />} />
         <Route path="/recomendacoes/:id" element={<DetalheRecomendacao />} />
-        <Route path="/historico" element={<Historico />} />
+        <Route
+          path="/historico"
+          element={
+            <RequireAuth>
+              <Historico />
+            </RequireAuth>
+          }
+        />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contato" element={<Contato />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
-        <Route path="/perfil" element={<Perfil />} />
+        <Route
+          path="/perfil"
+          element={
+            <RequireAuth>
+              <Perfil />
+            </RequireAuth>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
