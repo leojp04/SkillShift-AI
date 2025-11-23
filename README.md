@@ -88,7 +88,9 @@ skillshift-ai/
 │   ├── Fabricio.jpg
 │   ├── Leonardo.jpg
 │   ├── Pedro.jpeg
-│   └── vite.svg
+│   ├── devtools-ia-historico.png
+│   ├── devtools-login-historico.png
+│   └── favicon.svg
 ├── src/
 │   ├── components/
 │   │   ├── Navbar.tsx
@@ -121,7 +123,7 @@ skillshift-ai/
 │   ├── utils/
 │   │   └── recommendationHistory.ts
 │   ├── App.tsx
-│   ├── index.css
+│   ├── global.css
 │   └── main.tsx
 ├── eslint.config.js
 ├── index.html
