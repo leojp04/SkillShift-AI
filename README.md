@@ -5,7 +5,7 @@ Plataforma acadêmica de requalificação profissional com IA, alinhada ao Futur
 ---
 
 ## 📌 Status do Projeto
-✅ Em desenvolvimento / protótipo funcional (Vercel + APIs na Render)
+✅ Concluído 
 
 ---
 
@@ -184,10 +184,10 @@ Erros são tratados com mensagens amigáveis e estados de loading nas telas de L
 ## Evidências da API
 
 - DevTools mostrando chamadas reais (login e histórico)  
-  ![Evidência via DevTools](public/devtools-login-historico.png)
+  ![Evidência via DevTools](./skillshift-ai/public/devtools-login-historico.png)
 
 - Chamadas em produção (IA + histórico)  
-  ![Chamadas IA e histórico](public/devtools-ia-historico.png)
+  ![Chamadas IA e histórico](./skillshift-ai/public/devtools-ia-historico.png)
 
 ---
 
