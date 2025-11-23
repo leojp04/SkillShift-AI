@@ -2,22 +2,31 @@ const faqs = [
   {
     pergunta: "O que é a SkillShift AI?",
     resposta:
-      "Uma plataforma que usa IA para sugerir trilhas de requalificação profissional, conectando você a cursos e áreas em alta.",
-  },
-  {
-    pergunta: "Preciso pagar para usar?",
-    resposta:
-      "Este projeto é um protótipo acadêmico e não exige pagamento. Em um cenário real, haveria planos gratuitos e pagos.",
+      "Uma plataforma que usa IA para sugerir macro-áreas e cursos de requalificação, conectando você a trilhas alinhadas ao seu perfil.",
   },
   {
     pergunta: "Como as recomendações são geradas?",
     resposta:
-      "As sugestões combinam dados de mercado, perfil do usuário e regras pré-configuradas. Quando a API não está ativa, usamos dados mock.",
+      "Você informa 10 notas (Big Five + aptidões) e a IA retorna a macro-área sugerida e um cluster de cursos recomendados.",
   },
   {
-    pergunta: "Posso salvar minhas trilhas favoritas?",
+    pergunta: "Preciso me cadastrar para usar?",
     resposta:
-      "Na versão atual, o salvamento é local. Em uma versão completa, você teria cadastro e sincronização em nuvem.",
+      "Para gerar recomendações, não. O cadastro é usado para salvar o histórico das consultas no backend e acessar depois no perfil.",
+  },
+  {
+    pergunta: "Que dados ficam salvos no histórico?",
+    resposta:
+      "Armazenamos a macro-área sugerida e os cursos recomendados de cada consulta, vinculados ao seu usuário autenticado.",
+  },
+  {
+    pergunta: "Quais APIs o app usa?",
+    resposta:
+      "Uma API de autenticação/histórico (Render) para login e salvar consultas, e uma API de IA (Render) para calcular macro-áreas e cursos.",
+  },
+  {
+    pergunta: "Tem algum custo?",
+    resposta: "Não. É um protótipo acadêmico, gratuito para testes.",
   },
 ];
 
