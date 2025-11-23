@@ -86,7 +86,14 @@ const Login = () => {
             disabled={loading}
             className="w-full px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Entrando...
+              </span>
+            ) : (
+              "Entrar"
+            )}
           </button>
         </form>
       </div>

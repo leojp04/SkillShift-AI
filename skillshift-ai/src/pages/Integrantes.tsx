@@ -1,17 +1,26 @@
 const integrantes = [
   {
     nome: "Leonardo José Pereira",
-    rm: " 563065",
+    rm: "563065",
+    turma: "1TDSPW",
+    github: "https://github.com/leojp04",
+    linkedin: "https://www.linkedin.com/in/leonardo-pereira-adm/",
     foto: "/Leonardo.jpg",
   },
   {
     nome: "Fabrício Henrique Pereira",
-    rm: " 563237",
+    rm: "563237",
+    turma: "1TDSPW",
+    github: "https://github.com/Fabriciopereira-sp",
+    linkedin: "https://www.linkedin.com/in/fabr%C3%ADcio-henrique-pereira-3aa94933b/",
     foto: "/Fabricio.jpg",
   },
   {
     nome: "Pedro Henrique de Oliveira",
-    rm: " 562312",
+    rm: "562312",
+    turma: "1TDSPW",
+    github: "https://github.com/pedrinzz10",
+    linkedin: "https://www.linkedin.com/in/pedro-henrique-oliveira-484336261/",
     foto: "/Pedro.jpeg",
   },
 ];
@@ -37,12 +46,31 @@ const Integrantes = () => {
                 src={m.foto}
                 alt={m.nome}
                 className={`w-full h-80 object-cover ${
-                  m.nome.includes("Fabrício") ? "object-center" : "object-top"
+                  m.nome.includes("Leonardo") ? "object-top" : "object-center"
                 } rounded-t-2xl mb-3 border border-slate-200 dark:border-slate-700`}
               />
             )}
             <h2 className="font-semibold text-slate-900 dark:text-slate-100">{m.nome}</h2>
             <p className="text-sm text-slate-500 dark:text-slate-300">RM: {m.rm}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-300">Turma: {m.turma}</p>
+            <div className="flex flex-col gap-1 mt-2">
+              <a
+                href={m.github}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-indigo-600 dark:text-indigo-300 hover:underline"
+              >
+                GitHub
+              </a>
+              <a
+                href={m.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-indigo-600 dark:text-indigo-300 hover:underline"
+              >
+                LinkedIn
+              </a>
+            </div>
           </div>
         ))}
       </div>

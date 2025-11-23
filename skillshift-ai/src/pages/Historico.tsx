@@ -16,6 +16,7 @@ const Historico = () => {
       navigate("/login", { replace: true });
       return;
     }
+    setLoading(true);
     fetchHistory(token)
       .then(setItems)
       .catch((err) => setErro(err instanceof Error ? err.message : "Erro ao carregar histórico."))
@@ -33,7 +34,10 @@ const Historico = () => {
         </p>
       </div>
       {loading ? (
-        <p className="text-slate-700 dark:text-slate-200">Carregando...</p>
+        <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+          <span className="h-4 w-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+          Carregando histórico...
+        </div>
       ) : erro ? (
         <p className="text-red-600 dark:text-red-300">{erro}</p>
       ) : items.length === 0 ? (

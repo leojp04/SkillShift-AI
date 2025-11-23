@@ -178,7 +178,14 @@ const Recomendacoes = () => {
               disabled={iaLoading}
               className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {iaLoading ? "Gerando recomendações..." : "Gerar recomendações"}
+              {iaLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Gerando recomendações...
+                </span>
+              ) : (
+                "Gerar recomendações"
+              )}
             </button>
             {iaLoading && (
               <p className="text-sm text-slate-500 dark:text-slate-400">

@@ -1,181 +1,197 @@
-﻿# SkillShift AI
+# SkillShift AI — Global Solution 2025 (Front-End Design Engineering)
 
-Plataforma de requalificação profissional com IA focada no **futuro do trabalho**.  
-Ajuda usuários a descobrir novas trilhas de carreira, cursos e áreas em alta no mercado.
+Plataforma acadêmica de requalificação profissional com IA, alinhada ao Futuro do Trabalho e às ODS 4, 8, 9 e 10. Ajudamos pessoas em risco de automação a encontrarem novas rotas de carreira, trilhas de estudo e cursos recomendados.
 
 ---
 
 ## 📌 Status do Projeto
-
-> ✅ Em desenvolvimento / protótipo funcional para Global Solution 2025 – Front-end Design Engineering
+✅ Em desenvolvimento / protótipo funcional (Vercel + APIs na Render)
 
 ---
 
 ## 📚 Sumário
-
 1. [Sobre o Projeto](#-sobre-o-projeto)  
 2. [Tecnologias Utilizadas](#-tecnologias-utilizadas)  
 3. [Instalação](#-instalação)  
 4. [Como Usar](#-como-usar)  
-5. [Estrutura de Pastas](#-estrutura-de-pastas)  
+5. [Estrutura de Pastas](#estrutura-de-pastas)  
 6. [Rotas Principais](#-rotas-principais)  
-7. [Integração com API](#-integração-com-api)  
-8. [Autores e Créditos](#-autores-e-créditos)  
+7. [Integração com APIs](#-integração-com-apis)  
+8. [Integrantes](#integrantes)  
 9. [Screenshots / Demonstração](#-screenshots--demonstração)  
 10. [Contato](#-contato)  
 
 ---
 
 ## 🔍 Sobre o Projeto
-
-O **SkillShift AI** está alinhado ao tema “O Futuro do Trabalho” e aos ODS:
-
-- ODS 4 – Educação de qualidade  
-- ODS 8 – Trabalho decente e crescimento econômico  
-
-A aplicação permite:
-
-- Visualizar recomendações de carreira e cursos  
-- Simular consumo de API (ou usar API Java real, se configurada)  
-- Navegar entre páginas obrigatórias da Global Solution  
+- Tema: Futuro do Trabalho e requalificação profissional (reskilling).  
+- Objetivo: avaliar perfil e risco de automação, sugerir macro-áreas, trilhas de estudo e cursos.  
+- ODS trabalhadas:  
+  - ODS 4 — Educação de Qualidade  
+  - ODS 8 — Trabalho Decente e Crescimento Econômico  
+  - ODS 9 — Indústria, Inovação e Infraestrutura  
+  - ODS 10 — Redução das Desigualdades  
+- Stack: React + Vite + TypeScript + TailwindCSS, SPA com rotas client-side.  
+- Integrações:
+  - API Java (Quarkus) para autenticação/usuários e histórico.
+  - API Python (Flask) para IA de recomendações (macro-área + cursos).
 
 ---
 
 ## 🛠 Tecnologias Utilizadas
-
-- **React** + **Vite** + **TypeScript**  
-- **React Router DOM** (rotas SPA)  
-- **TailwindCSS** (estilização e responsividade)  
-- `fetch` nativo para consumo de API (sem axios, sem frameworks extras)  
+- React 19, Vite, TypeScript  
+- React Router DOM (SPA)  
+- TailwindCSS (estilização e responsividade)  
+- Context API (tema e autenticação)  
+- Fetch nativo para chamadas HTTP  
 
 ---
 
 ## 💾 Instalação
-
 ```bash
 git clone https://github.com/leojp04/SkillShift-AI.git
-cd SkillShift-AI
+cd SkillShift-AI/skillshift-ai
 npm install
+```
 
-Crie um arquivo .env com:
+Crie o arquivo `.env` na raiz do front:
+```
+VITE_API_URL=https://skillshiftai-api-gs.onrender.com
+VITE_IA_BASE_URL=https://skillshift-ai-platform.onrender.com
+```
 
-VITE_API_URL=https://sua-api-no-render.onrender.com
+---
+
+## ▶️ Como Usar
+- Desenvolvimento:  
+  ```bash
+  npm run dev
+  ```  
+  Acesse http://localhost:5173
+
+- Build:  
+  ```bash
+  npm run build
+  npm run preview
+  ```
+
+- Produção (Vercel):  
+  https://skill-shift-ai-rust.vercel.app  
+  Configure as variáveis de ambiente na Vercel com os mesmos valores do `.env`.
+
+---
+
+## Estrutura de Pastas
+```
+skillshift-ai/
+├── public/
+│   ├── Fabricio.jpg
+│   ├── Leonardo.jpg
+│   ├── Pedro.jpeg
+│   └── vite.svg
+├── src/
+│   ├── assets/
+│   │   └── react.svg
+│   ├── components/
+│   │   └── Navbar.tsx
+│   ├── config/
+│   │   └── api.ts
+│   ├── contexts/
+│   │   ├── AuthContext.tsx
+│   │   └── ThemeContext.tsx
+│   ├── pages/
+│   │   ├── Cadastro.tsx
+│   │   ├── Contato.tsx
+│   │   ├── DetalheRecomendacao.tsx
+│   │   ├── FAQ.tsx
+│   │   ├── Historico.tsx
+│   │   ├── Home.tsx
+│   │   ├── Integrantes.tsx
+│   │   ├── Login.tsx
+│   │   ├── NotFound.tsx
+│   │   ├── Perfil.tsx
+│   │   ├── Recomendacoes.tsx
+│   │   └── Sobre.tsx
+│   ├── services/
+│   │   ├── apiClient.ts
+│   │   ├── authApi.ts
+│   │   ├── historyApi.ts
+│   │   └── iaApi.ts
+│   ├── types/
+│   │   └── recomendacao.ts
+│   ├── utils/
+│   │   └── recommendationHistory.ts
+│   ├── App.css
+│   ├── App.tsx
+│   ├── index.css
+│   └── main.tsx
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+```
+
+---
+
+## 🌐 Rotas Principais
+- `/` — Home  
+- `/sobre` — Sobre o projeto e ODS  
+- `/integrantes` — Dados completos dos integrantes (foto, RM, turma, GitHub, LinkedIn)  
+- `/recomendacoes` — Formulário de IA para gerar macro-área e cursos  
+- `/recomendacoes/:id` — Detalhe de recomendação (rota dinâmica)  
+- `/historico` — Histórico das consultas (requer login)  
+- `/faq` — Perguntas frequentes  
+- `/contato` — Contato  
+- `/login` e `/cadastro` — Autenticação  
+- `/perfil` — Dados do usuário e troca de senha  
+- `*` — NotFound  
+
+---
+
+## 🔗 Integração com APIs
+- **API Java (Quarkus) — https://skillshiftai-api-gs.onrender.com**
+  - `POST /auth/register` — cadastro
+  - `POST /auth/login` — login (retorna token)
+  - `GET /me` — dados do usuário autenticado
+  - `PATCH|PUT|POST /me/password` — alterar senha
+  - `GET /recomendacoes/historico` — histórico de recomendações do usuário
+  - `POST /recomendacoes/historico` — salvar recomendação gerada
+
+- **API IA (Python/Flask) — https://skillshift-ai-platform.onrender.com**
+  - `POST /predict-area` — retorna macro-área sugerida e explicação
+  - `POST /cluster-profile` — retorna cluster e cursos recomendados
+
+Erros são tratados com mensagens amigáveis e estados de loading nas telas de Login, Cadastro, Recomendações e Histórico.
+
+---
+
+## Integrantes
+
+- **Leonardo José Pereira** — RM **563065** — 1TDSPW  
+  GitHub: https://github.com/leojp04 · LinkedIn: https://www.linkedin.com/in/leonardo-pereira-adm
+- **Fabricio Henrique Pereira** — RM **563237** — 1TDSPW  
+  GitHub: https://github.com/Fabriciopereira-sp · LinkedIn: https://www.linkedin.com/in/fabrício-henrique-pereira-3aa94933b/
+- **Pedro Henrique de Oliveira ** — RM **562312** — 1TDSPW  
+  GitHub: https://github.com/pedrinzz10 · LinkedIn: https://www.linkedin.com/in/pedro-henrique-oliveira-484336261/
 
 
-Se não informar a URL, a aplicação usará dados mock na página de recomendações.
+---
 
-▶️ Como Usar
-
-Ambiente de desenvolvimento:
-
-npm run dev
+## 🖼 Screenshots / Demonstração
 
 
-Acesse em:
+ 
 
-http://localhost:5173
- (porta padrão do Vite)
+---
 
-Deploy (Vercel):
-
-URL da aplicação: adicionar aqui a URL gerada na Vercel
-
-Na Vercel, a variável de ambiente VITE_API_URL também deve ser configurada para apontar para a API Java publicada.
-
-🗂 Estrutura de Pastas
-src/
-  components/
-    Navbar.tsx
-  contexts/
-    ThemeContext.tsx
-  pages/
-    Home.tsx
-    Sobre.tsx
-    Integrantes.tsx
-    Recomendacoes.tsx
-    DetalheRecomendacao.tsx
-    TrilhasDeCarreira.tsx
-    FAQ.tsx
-    Contato.tsx
-    Login.tsx
-    NotFound.tsx
-  types/
-    recomendacao.ts
-  App.tsx
-  main.tsx
-  index.css
-
-🌐 Rotas Principais
-
-/ – Home
-
-/sobre – Sobre o projeto e ODS
-
-/integrantes – Dados dos integrantes do grupo
-
-/recomendacoes – Lista de recomendações de carreira (lista + CRUD básico)
-
-/recomendacoes/:id – Detalhe de uma recomendação específica (rota dinâmica)
-
-/trilhas – Trilhas de carreira curadas
-
-/faq – Perguntas frequentes
-
-/contato – Página de contato (formulário mock)
-
-/login – Tela de autenticação
-
-Rotas de Cursos, Empresas e Usuários foram removidas do protótipo atual por não fazerem parte do escopo essencial.
-
-🔗 Integração com API
-
-A aplicação foi projetada para consumir uma API Java (Domain Driven Design Using Java):
-
-Base URL configurada via VITE_API_URL
-
-Endpoints esperados:
-
-GET /recomendacoes
-
-POST /recomendacoes
-
-DELETE /recomendacoes/{id}
-
-Quando a API não está configurada, a aplicação utiliza dados mock no front-end para não quebrar a experiência.
-
-👥 Autores e Créditos
-Nome	RM	Turma	GitHub	LinkedIn
-Leonardo	RM…	1TDSPW	GitHub	LinkedIn
-Fabrício	RM…	1TDSPW	GitHub	LinkedIn
-Pedro	RM…	1TDSPW	GitHub	LinkedIn
-🖼 Screenshots / Demonstração
-
-Home com cards de objetivo e ODS
-
-Página Sobre explicando problema e solução
-
-Página Integrantes com dados e links
-
-Página Recomendações listando e manipulando recomendações
-
-Página Contato com formulário mock
-
-(Screenshots podem ser adicionados como imagens Markdown depois.)
-
-📬 Contato
-
-Para mais informações:
-
-Leonardo – RM… – 1TDSPW – GitHub / LinkedIn
-
-Fabrício – RM… – 1TDSPW – GitHub / LinkedIn
-
-Pedro – RM… – 1TDSPW – GitHub / LinkedIn
-
-Links importantes:
-
-Repositório GitHub: https://github.com/leojp04/SkillShift-AI
-
-Deploy Vercel: colocar link
-
-Vídeo de apresentação (YouTube): colocar link
+## 📬 Contato
+- Projeto: https://github.com/leojp04/SkillShift-AI  
+- Deploy: https://skill-shift-ai-rust.vercel.app  
+- Equipe (RMs e turma): ver tabela de Autores.  
+ 
