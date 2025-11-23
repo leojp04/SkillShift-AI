@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import type { ClusterProfileResponse, IaPayload, PredictAreaResponse } from "../services/iaApi";
 import { getClusterProfile, predictArea } from "../services/iaApi";
 import { useAuth } from "../contexts/AuthContext";

@@ -13,9 +13,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/ia-api/, ""),
       },
       "/api": {
-        target: "http://localhost:8080",
+        target: "https://skillshiftai-api-gs.onrender.com",
         changeOrigin: true,
-        secure: false,
+        secure: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

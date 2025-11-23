@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { fetchHistory } from "../services/historyApi";
@@ -179,7 +179,7 @@ const Perfil = () => {
           <ul className="space-y-3">
             {historico.map((item) => (
               <li
-                key={`${item.userId}-${item.data}-${item.macro_area}`}
+                key={`${item.id}-${item.data}-${item.macro_area}`}
                 className="border border-slate-200 dark:border-slate-700 rounded-md p-3 bg-slate-50 dark:bg-slate-800/60"
               >
                 <p className="text-xs text-slate-500 dark:text-slate-400">
