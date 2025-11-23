@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Perfil from "./pages/Perfil";
+import Historico from "./pages/Historico";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/integrantes" element={<Integrantes />} />
         <Route path="/recomendacoes" element={<Recomendacoes />} />
         <Route path="/recomendacoes/:id" element={<DetalheRecomendacao />} />
+        <Route path="/historico" element={<Historico />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contato" element={<Contato />} />
         <Route path="/login" element={<Login />} />

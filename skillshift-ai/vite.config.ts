@@ -12,6 +12,12 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/ia-api/, ""),
       },
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
     },
   },
 });

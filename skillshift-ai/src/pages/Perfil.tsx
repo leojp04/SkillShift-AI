@@ -1,27 +1,45 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { getHistoryForUser } from "../utils/recommendationHistory";
-import type { RecommendationHistoryEntry } from "../utils/recommendationHistory";
+import { fetchHistory } from "../services/historyApi";
+import type { RecommendationHistoryItem } from "../services/historyApi";
 
 const Perfil = () => {
-  const { usuario, atualizarSenha, logout } = useAuth();
+  const { usuario, token, atualizarSenha, logout } = useAuth();
   const navigate = useNavigate();
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
-  const [historico, setHistorico] = useState<RecommendationHistoryEntry[]>([]);
+  const [historico, setHistorico] = useState<RecommendationHistoryItem[]>([]);
+  const [loadingHist, setLoadingHist] = useState(false);
+  const [erroHist, setErroHist] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     if (!usuario) {
       navigate("/login", { replace: true });
       return;
     }
-    const entries = getHistoryForUser(usuario.id);
-    setHistorico(entries);
-  }, [usuario, navigate]);
+    if (!token) return;
+    setLoadingHist(true);
+    fetchHistory(token)
+      .then((entries) => {
+        if (active) {
+          setHistorico(entries);
+        }
+      })
+      .catch((err) => {
+        if (active) setErroHist(err instanceof Error ? err.message : "Erro ao carregar histórico.");
+      })
+      .finally(() => {
+        if (active) setLoadingHist(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [usuario, token, navigate]);
 
   if (!usuario) return null;
 
@@ -149,7 +167,11 @@ const Perfil = () => {
             Histórico salvo das suas consultas recentes.
           </p>
         </div>
-        {historico.length === 0 ? (
+        {loadingHist ? (
+          <p className="text-sm text-slate-600 dark:text-slate-300">Carregando...</p>
+        ) : erroHist ? (
+          <p className="text-sm text-red-600 dark:text-red-300">{erroHist}</p>
+        ) : historico.length === 0 ? (
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Nenhuma recomendação registrada ainda.
           </p>

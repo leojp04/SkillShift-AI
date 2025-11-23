@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-
-export type AuthUser = {
-  id: string;
-  nome: string;
-  email: string;
-  senha: string;
-};
+import {
+  changePassword as apiChangePassword,
+  fetchMe,
+  loginUser,
+  registerUser,
+  type AuthResponse,
+  type SimpleUser,
+} from "../services/authApi";
 
 type LoginPayload = {
   email: string;
@@ -24,110 +25,82 @@ type UpdatePasswordPayload = {
 };
 
 type AuthContextValue = {
-  usuario: AuthUser | null;
+  usuario: SimpleUser | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
   login: (dados: LoginPayload) => Promise<void>;
   logout: () => void;
   cadastrar: (dados: RegisterPayload) => Promise<void>;
   atualizarSenha: (dados: UpdatePasswordPayload) => Promise<void>;
 };
 
-const USERS_KEY = "skillshift_usuarios";
-const CURRENT_USER_KEY = "skillshift_usuario_logado";
+const TOKEN_KEY = "skillshift_token";
+const USER_KEY = "skillshift_usuario";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const createId = () => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `user-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
-
-const readUsuarios = (): AuthUser[] => {
-  const raw = localStorage.getItem(USERS_KEY);
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed as AuthUser[];
-  } catch {
-    // ignore parse errors
-  }
-  return [];
-};
-
-const saveUsuarios = (usuarios: AuthUser[]) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(usuarios));
+const persistAuth = (res: AuthResponse) => {
+  localStorage.setItem(TOKEN_KEY, res.token);
+  localStorage.setItem(USER_KEY, JSON.stringify(res.usuario));
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [usuario, setUsuario] = useState<AuthUser | null>(null);
+  const [usuario, setUsuario] = useState<SimpleUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem(CURRENT_USER_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as AuthUser;
-      setUsuario(parsed);
-    } catch {
-      setUsuario(null);
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    if (!storedToken) {
+      setLoading(false);
+      return;
     }
+    setToken(storedToken);
+    fetchMe(storedToken)
+      .then((user) => setUsuario(user))
+      .catch(() => {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        setUsuario(null);
+        setToken(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async ({ email, senha }: LoginPayload) => {
-    const usuarios = readUsuarios();
-    const found = usuarios.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.senha === senha
-    );
-    if (!found) {
-      throw new Error("E-mail ou senha inválidos.");
-    }
-    setUsuario(found);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(found));
+    setError(null);
+    const res = await loginUser({ email, senha });
+    persistAuth(res);
+    setUsuario(res.usuario);
+    setToken(res.token);
   };
 
   const logout = () => {
     setUsuario(null);
-    localStorage.removeItem(CURRENT_USER_KEY);
+    setToken(null);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   };
 
   const cadastrar = async ({ nome, email, senha }: RegisterPayload) => {
-    const usuarios = readUsuarios();
-    const jaExiste = usuarios.some((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (jaExiste) {
-      throw new Error("Já existe um usuário com este e-mail.");
-    }
-    const novo: AuthUser = {
-      id: createId(),
-      nome,
-      email,
-      senha,
-    };
-    const atualizados = [...usuarios, novo];
-    saveUsuarios(atualizados);
-    setUsuario(novo);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(novo));
+    setError(null);
+    const res = await registerUser({ nome, email, senha });
+    persistAuth(res);
+    setUsuario(res.usuario);
+    setToken(res.token);
   };
 
   const atualizarSenha = async ({ senhaAtual, novaSenha }: UpdatePasswordPayload) => {
-    if (!usuario) {
-      throw new Error("Usuário não autenticado.");
-    }
-    const usuarios = readUsuarios();
-    const idx = usuarios.findIndex((u) => u.id === usuario.id);
-    if (idx === -1) throw new Error("Usuário não encontrado.");
-    if (usuarios[idx].senha !== senhaAtual) {
-      throw new Error("Senha atual incorreta.");
-    }
-    const atualizado: AuthUser = { ...usuarios[idx], senha: novaSenha };
-    usuarios[idx] = atualizado;
-    saveUsuarios(usuarios);
-    setUsuario(atualizado);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(atualizado));
+    if (!token) throw new Error("Usuário não autenticado.");
+    setError(null);
+    await apiChangePassword(token, { senhaAtual, novaSenha });
   };
 
   const value = useMemo(
-    () => ({ usuario, login, logout, cadastrar, atualizarSenha }),
-    [usuario]
+    () => ({ usuario, token, loading, error, login, logout, cadastrar, atualizarSenha }),
+    [usuario, token, loading, error]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
