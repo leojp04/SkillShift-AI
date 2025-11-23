@@ -17,10 +17,9 @@ Plataforma acadêmica de requalificação profissional com IA, alinhada ao Futur
 5. [Estrutura de Pastas](#estrutura-de-pastas)  
 6. [Rotas Principais](#-rotas-principais)  
 7. [Integração com APIs](#-integração-com-apis)  
-8. [Integrantes](#integrantes)  
-9. [Screenshots / Demonstração](#-screenshots--demonstração)  
-10. [Vídeo de Demonstração](#vídeo-de-demonstração)  
-11. [Contato](#-contato)  
+8. [Integrantes](#integrantes)    
+9. [Vídeo de Demonstração](#vídeo-de-demonstração)  
+10. [Contato](#-contato)  
 
 ---
 
@@ -182,36 +181,20 @@ Erros são tratados com mensagens amigáveis e estados de loading nas telas de L
 
 ---
 
-## 🖼 Screenshots / Demonstração
+## Evidências da API
 
-> As imagens abaixo ilustram as principais telas da aplicação SkillShift AI.
+- DevTools mostrando chamadas reais (login e histórico)  
+  ![Evidência via DevTools (login e histórico)](public/devtools-login-historico.png)
 
-- **Home / Início**
-
-  ![Home](./docs/screenshots/home.png)
-
-- **Recomendações de Carreira**
-
-  ![Recomendações](./docs/screenshots/recomendacoes.png)
-
-- **Histórico de Recomendações**
-
-  ![Histórico](./docs/screenshots/historico.png)
-
-- **Perfil do Usuário**
-
-  ![Perfil](./docs/screenshots/perfil.png)
-
-- **Integrantes do Projeto**
-
-  ![Integrantes](./docs/screenshots/integrantes.png)
+- Chamadas em produção (IA + histórico) via DevTools  
+  ![Chamadas IA e histórico](public/devtools-ia-historico.png)
 
 ---
 
 ## Vídeo de Demonstração
 
 
-- 🔗 [Assista ao vídeo no YouTube](https://youtu.be/SEU_VIDEO_AQUI)
+- 🔗 [Assista ao vídeo no YouTube](https://youtu.be/fUz-Z3h-Htg?si=gXITNQuojI5Tqics)
 
 ---
 
