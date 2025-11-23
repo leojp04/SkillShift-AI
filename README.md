@@ -184,9 +184,9 @@ Erros são tratados com mensagens amigáveis e estados de loading nas telas de L
 ## Evidências da API
 
 - DevTools mostrando chamadas reais (login e histórico)  
-  ![Evidência via DevTools (login e histórico)](public/devtools-login-historico.png)
+  ![Evidência via DevTools](public/devtools-login-historico.png)
 
-- Chamadas em produção (IA + histórico) via DevTools  
+- Chamadas em produção (IA + histórico)  
   ![Chamadas IA e histórico](public/devtools-ia-historico.png)
 
 ---
