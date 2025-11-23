@@ -38,8 +38,14 @@ export const Navbar = () => {
         Contato
       </NavLink>
       {usuario ? (
-        <div className={`flex ${isMobile ? "flex-col" : "flex-row"} gap-2 ${isMobile ? "" : "ml-2"}`}>
-          <span className="text-sm text-slate-700 dark:text-slate-200">Olá, {usuario.nome ?? "usuário"}</span>
+        <div
+          className={`flex items-center ${isMobile ? "flex-col items-start" : "flex-row items-center"} gap-3 ${
+            isMobile ? "" : "ml-2"
+          }`}
+        >
+          <span className="px-3 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 opacity-80 select-none">
+            Olá, {usuario.nome ?? "usuário"}
+          </span>
           <NavLink to="/perfil" className={({ isActive }) => `${base} ${isActive ? active : inactive}`}>
             Perfil
           </NavLink>
